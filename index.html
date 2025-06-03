@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My first web page</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+
+<h1>My first web page</h1>
+
+<h3>What this is</h3>
+<p>
+    Welcome to my <em>first</em> webpage. I created this webpage without the assistance of a webpage editor. Just my little text editor and a keen <strong>understanding of html</strong>.
+</p>
+
+<h3>Why this is</h3>
+<ul>
+    <li>To learn HTML</li>
+    <li>List elements
+        <ol>
+            <li>Home</li>
+            <li>FAQs</li>
+            <li>About</li>
+            <li>Contact</li>
+        </ol>
+    </li>
+    <li>Have I have created ordered and unordered list</li>
+</ul>
+
+<h3>ZeusLearning.com</h3>
+<p><a href="http://www.zeuslearning.com" target="_blank">This link will open zeuslearning.com in new tab</a></p>
+
+<h3>On click of following image navigate to Google.com</h3>
+<a href="https://www.google.com">
+    <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" alt="Google">
+</a>
+
+<h4>Some random table</h4>
+<table border="1">
+    <tr>
+        <td>Row 1, cell 1</td><td>Row 1, cell 2</td><td>Row 1, cell 3</td>
+    </tr>
+    <tr>
+        <td>Row 2, cell 1</td><td>Row 2, cell 2</td><td>Row 2, cell 3</td>
+    </tr>
+    <tr>
+        <td>Row 3, cell 1</td><td>Row 3, cell 2</td><td>Row 3, cell 3</td>
+    </tr>
+    <tr>
+        <td>Row 4, cell 1</td><td>Row 4, cell 2</td><td>Row 4, cell 3</td>
+    </tr>
+</table>
+
+<h4>Some random form</h4>
+<p>Note: It looks the part, but won't do anything.</p>
+
+<form onsubmit="return validateForm()">
+    <label for="name">Name:</label><br>
+    <input type="text" id="name" name="name" placeholder="Your name"><br><br>
+
+    <label for="comments">Comments:</label><br>
+    <textarea id="comments" name="comments" rows="5" cols="30" placeholder="Your comments..."></textarea><br><br>
+
+    <label>Are you:</label><br>
+    <input type="radio" id="male" name="gender" value="Male">
+    <label for="male">Male</label><br>
+    <input type="radio" id="female" name="gender" value="Female">
+    <label for="female">Female</label><br><br>
+
+    <input type="submit" value="Submit Query">
+</form>
+
+<script src = "code.js"></script>
+
+</body>
+</html>
