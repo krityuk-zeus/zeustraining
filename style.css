@@ -3,6 +3,10 @@ body {
     font-family: Arial, sans-serif;
 }
 
+ul{
+    color:red
+}
+
 h1 {
     background-color: darkred;
     color: white;
@@ -46,6 +50,7 @@ input[type="text"], textarea {
 
 textarea {
     height: 100px;
+    overflow-y: scroll;
 }
 
 input[type="radio"] {
