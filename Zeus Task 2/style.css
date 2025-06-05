@@ -1,45 +1,62 @@
-/* @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap'); */
-body {
-  font-family: 'Roboto', sans-serif;
-  background-color: #f5f5f5;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+@font-face 
+{
+  font-family: 'Roboto';
+  src: url('webfonts/Roboto.woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+body
+{
+    font-family:'Roboto' , sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f44f4f;
 }
 
-.tweet-card {
-  background-color: white;
-  display: flex;
-  border-radius: 8px;
-  padding: 15px;
-  width: 400px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.card
+{
+    display: flex;
+    gap: 15px;
+    background-color: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.5);
+    width: 400px;
+}
+.profile
+{
+    width: 100px;
+    height: 100px;
+    /* border-radius: 50%; */
 }
 
-.profile-img {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  margin-right: 15px;
+.content
+{
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
 }
 
-.tweet-content {
-  flex: 1;
+.username
+{
+    font-weight: bold;
 }
-
-.username {
-  font-weight: bolder;
-  margin: 0;
+.message
+{
+    margin: 15px 0px;
 }
-
-.message {
-  margin: 8px 0;
+.icons
+{
+    color: gray;
+    display: flex;
+    gap:20px;
+    font-size: 18px;
 }
-
-.icons {
-  display: flex;
-  gap: 20px;
-  font-size: 14px;
-  color: gray;
+.icons i
+{
+    margin-right: 5px;
 }
