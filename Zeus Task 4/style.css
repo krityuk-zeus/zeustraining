@@ -1,0 +1,93 @@
+.wrapper{
+  height: 100vh;
+  /* width is by default 100vh */
+  display : grid;
+  grid-template-columns : repeat(3, 1fr);
+  /* grid-template-columns : 25% 37.5% 37.5%; */
+  /* grid-template-rows : repeat(6,1fr); */
+  grid-template-rows : 15% 35% 35% 15%;
+
+  gap: 2px;
+}
+
+.header{
+  grid-column : 1 / -1;
+  background-color : #d6a3c7;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #6E54D9;
+  background: linear-gradient(144deg,rgba(110, 84, 217, 1) 0%, rgba(129, 107, 223, 1) 50%, rgba(143, 124, 227, 1) 100%);
+}
+.sidebar{
+  grid-column : 1 / 2;
+  grid-row : 2 / 4;
+  background-color : #1a0cd8;
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #39D2CA;
+  background: linear-gradient(144deg, rgba(57, 210, 202, 1) 0%, rgba(50, 188, 181, 1) 50%, rgba(43, 170, 163, 1) 100%);
+}
+
+/* .content{
+  grid-column : 2 / -1;
+  grid-row : 2 / 4;
+  background-color : #16a32e;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+} */
+
+
+.content1{
+  grid-column : 2 / -1;
+  grid-row : 2 / 3;
+  background-color : #16a32e;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #6B53DA;
+  background: linear-gradient(137deg,rgba(107, 83, 218, 1) 0%, rgba(70, 125, 234, 1) 50%, rgba(52, 206, 227, 1) 100%);
+}
+.content2{
+  grid-column : 2 / 3;
+  grid-row : 3 / 4;
+  background-color : #35693e;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #6955DA;
+  background: linear-gradient(144deg,rgba(105, 85, 218, 1) 0%, rgba(69, 126, 235, 1) 50%, rgba(54, 210, 224, 1) 100%);
+}
+.content3{
+  grid-column : 3 / -1;
+  grid-row : 3 / 4;
+  background-color : #55dd6b;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #6856DB;
+  background: linear-gradient(144deg,rgba(104, 86, 219, 1) 0%, rgba(69, 126, 235, 1) 50%, rgba(54, 210, 224, 1) 100%);
+}
+.footer{
+  grid-column : 1 / -1;
+  background-color : #9fbddb;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #6D53D9;
+  background: linear-gradient(144deg, rgba(109, 83, 217, 1) 0%, rgba(125, 103, 222, 1) 50%, rgba(143, 123, 227, 1) 100%);
+}
+
+.wrapper > div{
+  color: white;
+  font-size: x-small;
+  font-weight: bold;
+  text-align: center;
+}
