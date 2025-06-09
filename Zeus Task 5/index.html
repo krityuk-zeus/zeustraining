@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+    
+</head>
+<body>
+    <!-- QUANTUM LOGIN PAGE -->
+     
+    <header class="header">
+        <!-- Logo -->
+        <div class = "logo">
+            <img src="quantum screen assets/icons/logo used in header.svg" alt="Quantum company logo featuring a stylized yellow light bulb and the word Quantum in white, set against a clean modern background, conveying innovation and a positive, energetic tone">
+        </div>
+        <div class = "header-right">
+            <!-- Navigation Links -->
+            <nav class="nav-links">
+                <a href="#">DASHBOARD</a>
+                <a href="#">CONTENT</a>
+                <a href="#">USERS</a>
+                <a href="#">REPORT</a>
+                <a href="#">ADMIN</a>
+            </nav>
+            <!-- Right Icons -->
+            <div class="right-icons">
+                <div class="icon">
+                    <img src="quantum screen assets/icons/alerts.svg" alt="Alerts" class="icon" />
+                    <span class="badge">2</span>
+                </div>
+                <div class="icon">
+                    <img src="quantum screen assets/icons/announcements.svg" alt="Announcements" class="icon" />
+                    <span class="badge">1</span>
+                </div>
+                <img class="profile" src="https://i.pravatar.cc/30" alt="profile">
+                <img class="hamburger" src="quantum screen assets/icons/hamburger-menu.svg" alt="Hamburger menu icon" />
+            </div>
+        </div>
+    </header>
+
+    <!-- DashBoard Section -->
+    <div class = "dashboard-box">
+         <div class = "tab-header">
+            <div class = "tab active" onclick = "showPage(0)">
+                <img src="quantum screen assets/icons/courses.svg" alt="Active tab icon" class="tab-icon">
+                <strong> 4 </strong>
+                <span class="tab-text">Courses</span>
+            </div>
+            <div class = "tab" onclick = "showPage(1)">
+                <img src="quantum screen assets/icons/grade submissions.svg" alt="Active tab icon" class="tab-icon">
+                <strong> 4 </strong>
+                <span class="tab-text">Classes</span>
+            </div>
+         </div>
+
+         <!-- ******** -->
+        <!-- courseSort.html -->
+        <div class="course-sort-bar">
+          <div class="course-count">Showing 4 of 4 courses</div>
+          <div class="sort-controls">
+            <label for="sort-select">Sort By:</label>
+            <select id="sort-select">
+              <option>Course Name</option>
+              <option>Start Date</option>
+              <option>End Date</option>
+            </select>
+            <span class="sort-arrow">↑</span>
+          </div>
+        </div>
+         <!-- ******** -->
+         
+         <div class = "tab-pages">
+            <div class = "tab-page active">
+                <div class="card-container" id="cardContainer"></div>
+                <!-- Course Content Shown Here -->
+            </div>
+            <div class="tab-page">
+                <!-- Replace Classes content tab-page here -->
+                Classes content shown here
+            </div>
+         </div>
+    </div>
+
+</body>
+<script src="script.js"></script>
+</html>

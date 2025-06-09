@@ -1,0 +1,59 @@
+[
+  {
+    "title": "Acceleration",
+    "subject": "Physics",
+    "grade": "7+2",
+    "units": 4,
+    "lessons": 18,
+    "topics": 24,
+    "class": "Mr. Frank's Class B",
+    "students": 50,
+    "start_date": "21-Jan-2020",
+    "end_date": "21-Aug-2020",
+    "image": "acceleration.jpg",
+    "is_favorite": true
+  },
+  {
+    "title": "Displacement, Velocity and Speed",
+    "subject": "Physics 2",
+    "grade": "6+3",
+    "units": 2,
+    "lessons": 15,
+    "topics": 20,
+    "class": "No Classes",
+    "students": 0,
+    "start_date": "",
+    "end_date": "",
+    "image": "velocity.jpg",
+    "is_favorite": true
+  },
+  {
+    "title": "Introduction to Biology: Micro organisms and how they affect us",
+    "subject": "Biology",
+    "grade": "4+1",
+    "units": 5,
+    "lessons": 16,
+    "topics": 22,
+    "class": "All Classes",
+    "students": 300,
+    "start_date": "",
+    "end_date": "",
+    "image": "biology.jpg",
+    "is_favorite": true
+  },
+  {
+    "title": "Introduction to High School Mathematics",
+    "subject": "Mathematics",
+    "grade": "8+3",
+    "units": null,
+    "lessons": null,
+    "topics": null,
+    "class": "Mr. Frank's Class A",
+    "students": 44,
+    "start_date": "14-Oct-2019",
+    "end_date": "20-Oct-2020",
+    "image": "math.jpg",
+    "is_expired": true,
+    "is_favorite": false
+  }
+]
