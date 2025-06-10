@@ -10,7 +10,7 @@
     "students": 50,
     "start_date": "21-Jan-2020",
     "end_date": "21-Aug-2020",
-    "image": "acceleration.jpg",
+    "image": "quantum screen assets/images/imageMask-1.png",
     "is_favorite": true
   },
   {
@@ -24,7 +24,7 @@
     "students": 0,
     "start_date": "",
     "end_date": "",
-    "image": "velocity.jpg",
+    "image": "quantum screen assets/images/imageMask-2.png",
     "is_favorite": true
   },
   {
@@ -38,7 +38,7 @@
     "students": 300,
     "start_date": "",
     "end_date": "",
-    "image": "biology.jpg",
+    "image": "quantum screen assets/images/imageMask-3.png",
     "is_favorite": true
   },
   {
@@ -52,7 +52,7 @@
     "students": 44,
     "start_date": "14-Oct-2019",
     "end_date": "20-Oct-2020",
-    "image": "math.jpg",
+    "image": "quantum screen assets/images/imageMask-1.png",
     "is_expired": true,
     "is_favorite": false
   }

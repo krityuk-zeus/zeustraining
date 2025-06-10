@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quntum - Log-in</title>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+    <div class="Container">
+        <div class="Header">
+            <div class="Logo">
+            <img src="assets/Icons/logo used in header.svg" alt="Quntum Logo" class="Logo">
+            </div>
+        </div>
+
+        <div class="Main-Content">
+            <div class="Log-in-box">
+                <div class="Log-in-Header">
+                    <img src="assets/Icons/back.svg" alt="Back Button" class="Back-Button">
+                    <span class="Log-in-Text" >
+                        <b>Log in With Quntum</b>
+                    </span>
+                </div>
+                <!-- // create a 50px gap here -->
+                <div style="margin-bottom: 6px;"></div>
+                <form>
+                    <div class="Radio-group">
+                        <label class="Custom-Radio">
+                            <input type="radio" name="Usertype">
+                            <span></span>District
+                        </label>
+                        <label class="Custom-Radio">
+                            <input type="radio" name="Usertype">
+                            <span></span>Independent School
+                        </label>
+                    </div>
+                    <div class="Form-Input">
+                        <label class="state">State*</label>
+                        <select id="state">
+                            <option>Select</option>
+                            <option>Maharastra</option>
+                            <option>Gujrat</option>
+                        </select>
+                    </div>
+                    <div class="Form-Input">
+                    <label class="district">District*</label>
+                    <select id="district">
+                        <option>Select</option>                        
+                        <option>Mumbai</option>
+                        <option>Ahmedabad</option>
+                    </select>
+                    </div>
+                    
+                    <div class="Form-Input">
+                        <input type="text" placeholder="Username/Email ID*" id="Username">
+                        <div class="Action-link">
+                            <a href="#">FORGOT USERNAME</a>
+                        </div>
+                    </div>
+                    <div class="Form-Input password-wrapper">
+                        <input type="password" placeholder="Password*" id="Password">
+                        <img src="assets/Icons/preview.svg" alt="Toggle Password" class="toggle-password" onclick="togglePassword()" id="toggleEye">
+                    </div>
+                    <div class="Action-link">
+                            <a href="#">FORGOT PASSWORD</a>
+                    </div>
+                    <div class="Remember-Me">
+                        <label class="Custom-Check">
+                            <input type="checkbox" id="remember">
+                            <span></span>
+                            Remember Me
+                        </label>
+                    </div>
+                    <button class="Log-in-Button" type="submit">LOG IN</button>
+                </form>
+                </div>
+        
+            <div class="Info">
+                <a href="#">About</a> | <a href="#">Contact Us</a>
+            </div>
+        </div>
+        <div class="Footer">
+            <img src="assets/Icons/logo used in footer.svg">
+            <span>Copyright 2020-2021 <b>Zeus System Pvt.Ltd.</b> All rights resereved</span>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    function  togglePassword()
+    {
+        const pw = document.getElementById("Password");
+        pw.type = pw.type ===  "password" ? "text" : "password";
+    }
+</script>
