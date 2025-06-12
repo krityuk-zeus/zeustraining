@@ -11,12 +11,23 @@ function showPage(index) {
     pages[index].classList.add('active'); //  classlist tab-page active ye 2 classes thi list me, ek class jiska naam active vo remove kr diya, is particular tab[index] se.
 }
 
+document.addEventListener('DOMContentLoaded', function () {
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function (e) {
+                // Remove active class from all
+                navLinks.forEach(l => l.classList.remove('nav-link-active'));
+
+                // Add active to clicked one
+                this.classList.add('nav-link-active');
+            });
+        });
+});
+
 
 fetch('data.json')
   .then(response => {
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
     return response.json();
   })
   .then(courses => {
@@ -27,13 +38,15 @@ fetch('data.json')
       card.className = 'course-card';
 
       card.innerHTML = `
-        ${course.is_expired ? `<div class="expired-tag">EXPIRED</div>` : ''}
-        
-        <div class="course-card-header">
+      
+      <div class="course-card-header">
           <img src="${course.image || 'fallback.jpg'}" alt="Course image" class="course-image" />
-
+          <div class="course-card-header-text">
           <div class="course-title">
+          <div style="display: flex; justify-content: space-between;">
             <h3>${course.title || 'Untitled Course'}</h3>
+            <div class="${course.is_favorite ? 'favorite' : 'favorite not-favorite'}">&#9733;</div>
+          </div>
             <p>${course.subject || 'No Subject'} | Grade <span class="grade">${course.grade || '-'}</span></p>
             <p>
               ${course.units ? `<strong>${course.units}</strong> Units ` : ''}
@@ -41,24 +54,23 @@ fetch('data.json')
               ${course.topics ? `<strong>${course.topics}</strong> Topics` : ''}
             </p>
           </div>
-
-          <div class="${course.is_favorite ? 'favorite' : 'favorite not-favorite'}">&#9733;</div>
+        
+          <div class="course-subtitle">
+              <select>
+                  <option>${course.class || 'No Class Assigned'}</option>
+              </select>
+              <p>${course.students || 0} Students ${course.start_date ? `| ${course.start_date} – ${course.end_date}` : ''}</p>
+          </div>
+        </div>  
         </div>
-
-        <div class="course-class-info">
-          <select>
-            <option>${course.class || 'No Class Assigned'}</option>
-          </select>
-          <p>${course.students || 0} Students ${course.start_date ? `| ${course.start_date} – ${course.end_date}` : ''}</p>
-        </div>
-
-        <hr>
+    
+        <hr class = "divider">
 
         <div class="course-actions">
-          <img src="https://img.icons8.com/ios-filled/24/000000/visible.png" title="View" />
-          <img src="https://img.icons8.com/ios-filled/24/000000/calendar.png" title="Calendar" />
-          <img src="https://img.icons8.com/ios-filled/24/000000/star--v1.png" title="Grade" />
-          <img src="https://img.icons8.com/ios-filled/24/000000/combo-chart--v1.png" title="Analytics" />
+          <img src="quantum screen assets/icons/preview.svg" title="Analytics" />
+          <img src="quantum screen assets/icons/manage course.svg" title="Analytics" />
+          <img src="quantum screen assets/icons/grade submissions.svg" title="Analytics" />
+          <img src="quantum screen assets/icons/reports.svg" title="Analytics" />
         </div>
       `;
 
