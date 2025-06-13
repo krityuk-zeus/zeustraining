@@ -21,6 +21,7 @@ header{
     padding: 10px;
     align-items: center; /* display-flex is on so align-items vertically center the content */
     justify-content: space-between;
+    position : relative 
 }
 /* .logo{
     align-items: center;
@@ -35,28 +36,35 @@ header{
 
  /* header-right has two parts: nav-links and right-icons */
 .nav-link {
-    color: #35c48e;
+    color: #3FD28B;
     text-decoration: none;
     font-size: 14px;
     padding: 4px 10px;
     transition: all 500ms;
+    font-weight: 500;
     position: relative; /* for the underline effect */
   }
-  .nav-link::after {
-    content: '';
-    position: absolute;
+  .nav-link::after { /* ::after is used to create an underline effect, us nav-link ke after me ek div tag (underline-tag) add kr dia */
+    content: ''; /* empty content for the pseudo-element */
+    position: absolute; /* after me position : absolute likhte h, and uske baad left, bottom, width, height likhte h */
     left: 0;
     bottom: -16px;
     width: 100%;
     height: 3px;
     background-color: white;
     transform: scaleX(0);
-    transform-origin: left;
+    transform-origin: center;
     transition: transform 0.3s ease;
+    color : white;
+}
+.nav-link:hover, /* this is hover effect for nav-link */
+.nav-link:focus, 
+.nav-link.nav-link-active {
+  color: white; /* 🔥 makes text white */
 }
 
 
-.nav-link:hover::after, 
+.nav-link:hover::after, /* this is hover effect for nav-link underline (or nav-link ka after) */
 .nav-link:focus::after,
 .nav-link.nav-link-active::after {
   transform: scaleX(1); /* scale the underline to full width on hover or focus */
@@ -66,6 +74,10 @@ header{
   display: none;
 }
 
+/* 
+.nav-wrapper {
+  display: flex;
+} */
 
  @media(max-width : 768px){
      .nav-link {
@@ -75,8 +87,37 @@ header{
           display: inline; /* show the hamburger icon on small screens */
           cursor: pointer;
       }
+     .nav-wrapper {
+          display: none;
+          flex-direction: column;
+          background-color: white;
+          position: absolute; /* its referencing position-relative from header, header is having position:relative defined*/
+          top: 63px; /* height of header */
+          right: 10px;
+          left : 60%;
+          z-index: 999; /*dropdown me 999 is convention, pop-ups ka 9999, sticky-header ka 99, by default sbka auto or 0 hota h z-index*/
+          border-radius: 6px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      }
+
+      /* .hamburger:hover {
+      } */
+      .nav-wrapper.show-menu{
+          display: flex; /* show the nav-wrapper when hamburger is clicked */
+      }
+      .nav-wrapper.show-menu .nav-link {
+          display: block; /* <-- remove the display none of the nav-link */ 
+          padding: 12px 10px;
+          color: #1F7A54;   
+      }
+      .header-right.show-menu .hamburger {
+         filter: brightness(0) invert(1);
+      }
   }
 
+
+
+/*  */
  .right-icons{
     display: flex;
     align-items: center;
@@ -94,8 +135,10 @@ header{
 }
 
  .icon > img {
+
   font-size: 24px;
   object-fit: contain;
+  padding: 12px 0;
 }
 
  .badge {
@@ -124,6 +167,90 @@ header{
   width: 20px;
   border-radius: 50%;
   opacity : 80%
+}
+/* **** */
+
+.big-card {
+  width: 320px;
+  max-height: 450px;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-y: scroll;
+}
+
+ /* .card-scrollable {
+  flex-grow: 1;
+} */
+.small-card {
+  padding: 0 12px ;
+  border-bottom: 1px solid #eee;
+  }
+  
+  
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #3a3a3a;
+}
+
+.card-content p {
+  margin: 5px 0;
+  font-weight: 500;
+}
+
+.attachment, .timestamp {
+  display: block;
+  font-size: 11px;
+  color: #555;
+}
+
+.status-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #ddd;
+  padding: 12px 16px;
+  background-color: #f9f9f9;
+}
+
+.footer-btn {
+  background: none;
+  border: none;
+  color: #35c48e;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.announcement-dropdown {
+  display:none;
+  position: absolute; /* dropdown is positioned relative to icon */
+  top: 40px; /* adjust as needed */
+  right: 0;
+  min-width: 250px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  z-index: 1000;
+  /* padding-top: 16px; or try 20px if needed */
+  /* margin-top: -16px; negative margin to visually align */
+}
+
+.icon:hover > .announcement-dropdown{
+  display : block;  
+}
+.icon:hover > img{
+  filter: brightness(0) invert(1); /* to make the green-colored-image into white */
+}
+.icon:hover > .badge{
+  display: none;
 }
 
 /* ********************************************************************************* */
@@ -199,7 +326,7 @@ header{
 
 .card-container {
       display: grid;
-      grid-template-columns: repeat(auto-fit , minmax(400px, 1fr));
+      grid-template-columns: repeat(auto-fit , minmax(350px, 1fr));
       gap: 20px;
      }
 
@@ -279,7 +406,6 @@ header{
     .course-actions {
       display: flex;
       justify-content: space-around;
-      padding-top: 16px;
     }
 
     .course-actions img {

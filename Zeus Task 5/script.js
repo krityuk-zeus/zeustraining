@@ -80,3 +80,14 @@ fetch('data.json')
   .catch(error => {
     console.error("Error loading data.json:", error);
   });
+
+
+
+  // *******************************************************************
+
+  function toggleMenu() { // the inbuilt toggle function is used to add/remove  the class "show-menu" , into the nav-wrapper class
+    document.querySelector('.nav-wrapper').classList.toggle('show-menu');  // add/remove both means toggle the class from/into it;
+    document.querySelector('.header-right').classList.toggle('show-menu');
+  }
+
+  // *******************************************************************
