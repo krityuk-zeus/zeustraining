@@ -1,180 +1,359 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <link rel="stylesheet" href="style.css">
-    
-</head>
-<body>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
     <!-- QUANTUM LOGIN PAGE -->
-     
+
     <header>
-        <!-- Logo -->
-        <div class = "logo">
-            <img src="quantum screen assets/icons/logo used in header.svg" alt="Quantum company logo">
+      <!-- Logo -->
+      <div class="logo">
+        <img
+          src="quantum screen assets/icons/logo used in header.svg"
+          alt="Quantum company logo"
+        />
+      </div>
+      <div class="header-right">
+        <!-- Navigation Links -->
+        <div class="nav-wrapper" id="navWrapper">
+          <nav class="navbar">
+            <a class="nav-link nav-link-active" href="#">DASHBOARD</a>
+            <a class="nav-link" href="#">CONTENT</a>
+            <a class="nav-link" href="#">USERS</a>
+            <a class="nav-link" href="#">REPORT</a>
+            <a class="nav-link" href="#">ADMIN</a>
+          </nav>
         </div>
-        <div class = "header-right">
-            <!-- Navigation Links -->
-            <div class = "nav-wrapper" id = "navWrapper">
-                <nav class="navbar">
-                    <a class = "nav-link nav-link-active" href="#">DASHBOARD</a>
-                    <a class = "nav-link" href="#">CONTENT</a>
-                    <a class = "nav-link" href="#">USERS</a>
-                    <a class = "nav-link" href="#">REPORT</a>
-                    <a class = "nav-link" href="#">ADMIN</a>
-                </nav>
+        <!-- Right Icons -->
+        <div class="right-icons">
+          <div class="icon">
+            <img src="quantum screen assets/icons/alerts.svg" alt="Alerts" />
+            <span class="badge">2</span>
+            <div class="announcement-dropdown big-card">
+              <!-- see it like its class is just announcement-dropdown, dont see the other class big-card -->
+              <div class="card-scrollable">
+                <div class="small-card">
+                  <div class="card-header">
+                    <strong>PA: Wilson Kumar</strong>
+                    <img
+                      src="quantum screen assets/icons/check-icon.svg"
+                      alt="status"
+                      class="status-icon"
+                    />
+                  </div>
+                  <div class="card-content">
+                    <p>No classes will be held on 21st Nov</p>
+                    <span class="attachment">2 files are attached</span>
+                    <span class="timestamp">15-Sep-2018 at 07:21 pm</span>
+                  </div>
+                </div>
+                <div class="small-card">
+                  <div class="card-header">
+                    <strong>PA: Wilson Kumar</strong>
+                    <img
+                      src="quantum screen assets/icons/check-icon-circle.svg"
+                      alt="status"
+                      class="status-icon"
+                    />
+                  </div>
+                  <div class="card-content">
+                    <p>No classes will be held on 21st Nov</p>
+                    <span class="attachment">2 files are attached</span>
+                    <span class="timestamp">15-Sep-2018 at 07:21 pm</span>
+                  </div>
+                </div>
+                <div class="small-card">
+                  <div class="card-header">
+                    <strong>PA: Wilson Kumar</strong>
+                    <img
+                      src="quantum screen assets/icons/check-icon.svg"
+                      alt="status"
+                      class="status-icon"
+                    />
+                  </div>
+                  <div class="card-content">
+                    <p>No classes will be held on 21st Nov</p>
+                    <span class="attachment">2 files are attached</span>
+                    <span class="timestamp">15-Sep-2018 at 07:21 pm</span>
+                  </div>
+                </div>
+                <div class="small-card">
+                  <div class="card-header">
+                    <strong>PA: Wilson Kumar</strong>
+                    <img
+                      src="quantum screen assets/icons/check-icon.svg"
+                      alt="status"
+                      class="status-icon"
+                    />
+                  </div>
+                  <div class="card-content">
+                    <p>No classes will be held on 21st Nov</p>
+                    <span class="attachment">2 files are attached</span>
+                    <span class="timestamp">15-Sep-2018 at 07:21 pm</span>
+                  </div>
+                </div>
+                <div class="small-card">
+                  <div class="card-header">
+                    <strong>PA: Wilson Kumar</strong>
+                    <img
+                      src="quantum screen assets/icons/check-icon-circle.svg"
+                      alt="status"
+                      class="status-icon"
+                    />
+                  </div>
+                  <div class="card-content">
+                    <p>No classes will be held on 21st Nov</p>
+                    <span class="attachment">2 files are attached</span>
+                    <span class="timestamp">15-Sep-2018 at 07:21 pm</span>
+                  </div>
+                </div>
+                <div class="small-card">
+                  <div class="card-header">
+                    <strong>PA: Wilson Kumar</strong>
+                    <img
+                      src="quantum screen assets/icons/check-icon.svg"
+                      alt="status"
+                      class="status-icon"
+                    />
+                  </div>
+                  <div class="card-content">
+                    <p>No classes will be held on 21st Nov</p>
+                    <span class="attachment">2 files are attached</span>
+                    <span class="timestamp">15-Sep-2018 at 07:21 pm</span>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer">
+                <button class="footer-btn">SHOW ALL</button>
+                <!-- <button class="footer-btn">CREATE NEW</button> -->
+              </div>
             </div>
-            <!-- Right Icons -->
-            <div class="right-icons">
-                <div class="icon">
-                    <img src="quantum screen assets/icons/alerts.svg" alt="Alerts"/>
-                    <span class="badge">2</span>
-                    <div class="announcement-dropdown big-card"> <!-- see it like its class is just announcement-dropdown, dont see the other class big-card -->
-                      <div class="card-scrollable">
-                        <div class="small-card">
-                          <div class="card-header">
-                            <strong>PA: Wilson Kumar</strong>
-                            <img src="quantum screen assets/icons/check-icon.svg" alt="status" class="status-icon">
-                          </div>
-                          <div class="card-content">
-                            <p>No classes will be held on 21st Nov</p>
-                            <span class="attachment">2 files are attached</span>
-                            <span class="timestamp">15-Sep-2018 at 07:21 pm</span>
-                          </div>
-                        </div>
-                        <div class="small-card">
-                          <div class="card-header">
-                            <strong>PA: Wilson Kumar</strong>
-                            <img src="quantum screen assets/icons/check-icon.svg" alt="status" class="status-icon">
-                          </div>
-                          <div class="card-content">
-                            <p>No classes will be held on 21st Nov</p>
-                            <span class="attachment">2 files are attached</span>
-                            <span class="timestamp">15-Sep-2018 at 07:21 pm</span>
-                          </div>
-                        </div>
-                        <div class="small-card">
-                          <div class="card-header">
-                            <strong>PA: Wilson Kumar</strong>
-                            <img src="quantum screen assets/icons/check-icon.svg" alt="status" class="status-icon">
-                          </div>
-                          <div class="card-content">
-                            <p>No classes will be held on 21st Nov</p>
-                            <span class="attachment">2 files are attached</span>
-                            <span class="timestamp">15-Sep-2018 at 07:21 pm</span>
-                          </div>
-                        </div>
-                        <div class="small-card">
-                          <div class="card-header">
-                            <strong>PA: Wilson Kumar</strong>
-                            <img src="quantum screen assets/icons/check-icon.svg" alt="status" class="status-icon">
-                          </div>
-                          <div class="card-content">
-                            <p>No classes will be held on 21st Nov</p>
-                            <span class="attachment">2 files are attached</span>
-                            <span class="timestamp">15-Sep-2018 at 07:21 pm</span>
-                          </div>
-                        </div>
-                        <div class="small-card">
-                          <div class="card-header">
-                            <strong>PA: Wilson Kumar</strong>
-                            <img src="quantum screen assets/icons/check-icon.svg" alt="status" class="status-icon">
-                          </div>
-                          <div class="card-content">
-                            <p>No classes will be held on 21st Nov</p>
-                            <span class="attachment">2 files are attached</span>
-                            <span class="timestamp">15-Sep-2018 at 07:21 pm</span>
-                          </div>
-                        </div>
-                        <div class="small-card">
-                          <div class="card-header">
-                            <strong>PA: Wilson Kumar</strong>
-                            <img src="quantum screen assets/icons/check-icon.svg" alt="status" class="status-icon">
-                          </div>
-                          <div class="card-content">
-                            <p>No classes will be held on 21st Nov</p>
-                            <span class="attachment">2 files are attached</span>
-                            <span class="timestamp">15-Sep-2018 at 07:21 pm</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="card-footer">
-                        <button class="footer-btn">SHOW ALL</button>
-                        <button class="footer-btn">CREATE NEW</button>
-                      </div>
-                    </div>
+          </div>
+          <div class="icon">
+            <img
+              src="quantum screen assets/icons/announcements.svg"
+              alt="announcements"
+            />
+            <span class="badge">1</span>
+            <div class="announcement-dropdown big-card">
+              <!-- see it like its class is just announcement-dropdown, dont see the other class big-card -->
+              <div class="card-scrollable">
+                <div class="small-card">
+                  <div class="card-header">
+                    <strong>PA: Wilson Kumar</strong>
+                    <img
+                      src="quantum screen assets/icons/check-icon-circle.svg"
+                      alt="status"
+                      class="status-icon"
+                    />
+                  </div>
+                  <div class="card-content">
+                    <p>No classes will be held on 21st Nov</p>
+                    <span class="attachment">2 files are attached</span>
+                    <span class="timestamp">15-Sep-2018 at 07:21 pm</span>
+                  </div>
                 </div>
-                <div class="icon">
-                    <img src="quantum screen assets/icons/announcements.svg" alt="announcements"/>
-                    <span class="badge">1</span>
-                    <div class="announcement-dropdown big-card"> <!-- see it like its class is just announcement-dropdown, dont see the other class big-card -->
-                      <div class="card-scrollable">
-                        <div class="small-card"> ... </div>
-                        <div class="small-card"> ... </div>
-                        <div class="small-card"> ... </div>
-                        <div class="small-card"> ... </div>
-                        <div class="small-card"> ... </div>
-                      </div>
-                      <div class="card-footer">
-                        <button class="footer-btn">SHOW ALL</button>
-                        <button class="footer-btn">CREATE NEW</button>
-                      </div>
-                    </div>
+                <div class="small-card">
+                  <div class="card-header">
+                    <strong>PA: Wilson Kumar</strong>
+                    <img
+                      src="quantum screen assets/icons/check-icon.svg"
+                      alt="status"
+                      class="status-icon"
+                    />
+                  </div>
+                  <div class="card-content">
+                    <p>No classes will be held on 21st Nov</p>
+                    <span class="attachment">2 files are attached</span>
+                    <span class="timestamp">15-Sep-2018 at 07:21 pm</span>
+                  </div>
                 </div>
-                <div class="icon">
-                    <img class="profile" src="https://i.pravatar.cc/30" alt="profile">
-                    <span class="badge2">T</span>
+                <div class="small-card">
+                  <div class="card-header">
+                    <strong>PA: Wilson Kumar</strong>
+                    <img
+                      src="quantum screen assets/icons/check-icon.svg"
+                      alt="status"
+                      class="status-icon"
+                    />
+                  </div>
+                  <div class="card-content">
+                    <p>No classes will be held on 21st Nov</p>
+                    <span class="attachment">2 files are attached</span>
+                    <span class="timestamp">15-Sep-2018 at 07:21 pm</span>
+                  </div>
                 </div>
-                <img class="hamburger" src="quantum screen assets/icons/hamburger-menu.svg" alt="Hamburger menu icon" onclick = "toggleMenu()"/>
+                <div class="small-card">
+                  <div class="card-header">
+                    <strong>PA: Wilson Kumar</strong>
+                    <img
+                      src="quantum screen assets/icons/check-icon.svg"
+                      alt="status"
+                      class="status-icon"
+                    />
+                  </div>
+                  <div class="card-content">
+                    <p>No classes will be held on 21st Nov</p>
+                    <span class="attachment">2 files are attached</span>
+                    <span class="timestamp">15-Sep-2018 at 07:21 pm</span>
+                  </div>
+                </div>
+                <div class="small-card">
+                  <div class="card-header">
+                    <div>PA: Wilson Kumar</div>
+                    <img
+                      src="quantum screen assets/icons/check-icon.svg"
+                      alt="status"
+                      class="status-icon"
+                    />
+                  </div>
+                  <div class="card-content">
+                    <p>No classes will be held on 21st Nov</p>
+                    <span class="attachment">2 files are attached</span>
+                    <span class="timestamp">15-Sep-2018 at 07:21 pm</span>
+                  </div>
+                </div>
+                <div class="small-card">
+                  <div class="card-header">
+                    <strong>PA: Wilson Kumar</strong>
+                    <img
+                      src="quantum screen assets/icons/check-icon.svg"
+                      alt="status"
+                      class="status-icon"
+                    />
+                  </div>
+                  <div class="card-content">
+                    <p>No classes will be held on 21st Nov</p>
+                    <span class="attachment">2 files are attached</span>
+                    <span class="timestamp">15-Sep-2018 at 07:21 pm</span>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer">
+                <button class="footer-btn">SHOW ALL</button>
+                <button class="footer-btn">CREATE NEW</button>
+              </div>
             </div>
+          </div>
+          <div class="icon">
+            <img class="profile" src="https://i.pravatar.cc/30" alt="profile" />
+            <span class="badge2">T</span>
+          </div>
+          <div class="hamburger-wrapper">
+            <img
+              class="hamburger"
+              src="quantum screen assets/icons/hamburger-menu.svg"
+              alt="Hamburger menu icon"
+            />
+            <!-- <p class = "mobile-nav">HIIIIIIIIIIIIIIIII</p> -->
+            <div class="mobile-nav side-bar">
+              <ul class="sidebar-menu">
+                <li><a href="#">Dashboard</a></li>
+
+                <li class="has-submenu">
+                  <a href="#">Content <span class="arrow">&#9660;</span></a>
+                  <ul class="submenu">
+                    <li><a href="#">Course Catalog</a></li>
+                  </ul>
+                </li>
+
+                <li class="has-submenu">
+                  <a href="#">Users <span class="arrow">&#9660;</span></a>
+                  <ul class="submenu">
+                    <li><a href="#">User List</a></li>
+                    <li><a href="#">Roles</a></li>
+                  </ul>
+                </li>
+
+                <li class="has-submenu">
+                  <a href="#">Reports <span class="arrow">&#9660;</span></a>
+                  <ul class="submenu">
+                    <li><a href="#">Activity</a></li>
+                  </ul>
+                </li>
+
+                <li class="has-submenu">
+                  <a href="#">Admin <span class="arrow">&#9660;</span></a>
+                  <ul class="submenu">
+                    <li><a href="#">Settings</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
+      </div>
     </header>
 
     <!-- DashBoard Section -->
-    <div class = "dashboard-box">
-         <div class = "tab-header">
-            <div class = "tab active" onclick = "showPage(0)">
-                <img src="quantum screen assets/icons/courses.svg" alt="Active tab icon" class="tab-icon">
-                <div class="tab-text-no">4</div>
-                <span class="tab-text">Courses</span>
-            </div>
-            <div class = "tab" onclick = "showPage(1)">
-                <img src="quantum screen assets/icons/classes.svg" alt="Active tab icon" class="tab-icon">
-                <div class="tab-text-no">4</div>
-                <span class="tab-text">Classes</span>
-            </div>
-         </div>
-
-         <!-- *************************************************************** -->
-        <!-- courseSort.html -->
-        <div class="course-sort-bar">
-          <div class="course-count">Showing 4 of 4 courses</div>
-          <div class="sort-controls">
-            <label class = "sort-by" for="sort-select">Sort By:</label>
-            <select id="sort-select">
-              <option>Course Name</option>
-              <option>Start Date</option>
-              <option>End Date</option>
-            </select>
-            <span class="sort-arrow">↑</span>
-          </div>
+    <div class="dashboard-box">
+      <div class="tab-header">
+        <div class="tab active" onclick="showPage(0)">
+          <img
+            src="quantum screen assets/icons/courses.svg"
+            alt="Active tab icon"
+            class="tab-icon"
+          />
+          <div class="tab-text-no">4</div>
+          <span class="tab-text">Courses</span>
         </div>
-        <hr class="divider"> 
-        <!-- **************************************************************** -->
-         <div class = "tab-pages">
-            <div class = "tab-page active">
-                <div class="card-container" id="cardContainer"></div>
-                <!-- Course Content Shown Here -->
-            </div>
-            <div class="tab-page">
-                <!-- Replace Classes content tab-page here -->
-                Classes content shown here
-            </div>
-         </div>
-    </div>
+        <div class="tab" onclick="showPage(1)">
+          <img
+            src="quantum screen assets/icons/classes.svg"
+            alt="Active tab icon"
+            class="tab-icon"
+          />
+          <div class="tab-text-no">4</div>
+          <span class="tab-text">Classes</span>
+        </div>
+      </div>
 
-</body>
-<script src="script.js"></script>
+      <!-- *************************************************************** -->
+      <!-- courseSort.html -->
+      <div class="course-sort-bar">
+        <div class="course-count">Showing 4 of 4 courses</div>
+        <div class="sort-controls">
+          <label class="sort-by" for="sort-select">Sort By:</label>
+          <select id="sort-select">
+            <option>Course Name</option>
+            <option>Start Date</option>
+            <option>End Date</option>
+          </select>
+          <span class="sort-arrow">↑</span>
+        </div>
+      </div>
+      <hr class="divider" />
+      <!-- **************************************************************** -->
+      <div class="tab-pages">
+        <div class="tab-page active">
+          <div class="card-container" id="cardContainer"></div>
+          <!-- Course Content Shown Here -->
+        </div>
+        <div class="tab-page">
+          <!-- Replace Classes content tab-page here -->
+          Classes content shown here
+        </div>
+      </div>
+    </div>
+    <!-- --------------------------------------- -->
+    <footer>
+            <div class="footer-links">
+                <a href="#">About</a>
+                <span class="link-divider">|</span>
+                <a href="#">Contact Us</a>
+            </div>
+            <div class="footer-text">
+                <img src="quantum screen assets/icons/logo used in footer.svg" alt="Quantum Logo" class="logo">
+                <span class="footer-divider"> | </span>
+                <span style="color: #494949; font-size: 12px;">
+                  © 2020-2021  &nbsp;  <strong>Zeus Systems Pvt. Ltd.</strong>   &nbsp; All rights reserved.
+                </span>
+            </div>
+    </footer>
+  </body>
+  <script src="script.js"></script>
 </html>
