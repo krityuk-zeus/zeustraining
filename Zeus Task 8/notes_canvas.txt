@@ -1,0 +1,99 @@
+const canvas = document.getElementById("myCanvas");
+const ctx = canvas.getContext("2d"); // "2d" context
+
+ctx.strokeStyle = "red";
+ctx.fillStyle = "blue";
+
+// // Draw a red rectangle
+// ctx.fillStyle = "red";
+// ctx.fillRect(50, 50, 250, 100);
+
+// ctx.fillStyle = "blue";
+// ctx.fillRect(100, 100, 150, 600);
+
+// ctx.strokeStyle = "green";
+// ctx.lineWidth = 4;
+// ctx.strokeRect(300, 50, 150, 100);
+
+// ctx.clearRect(100, 100, 50, 50);
+
+
+
+// ctx.beginPath();
+// ctx.moveTo(50, 50);
+// ctx.lineTo(200, 50);
+// ctx.lineTo(200, 200);
+// // ctx.closePath();
+
+
+
+// ctx.strokeStyle = "red";
+// ctx.stroke(); // just borders
+// // ctx.fillStyle = "blue";
+// // ctx.fill();   // fill with current fillStyle
+
+
+
+// ctx.beginPath();
+// ctx.arc(150, 150, 50, 0, Math.PI/2 ); // full circle
+// ctx.stroke();
+
+
+// ctx.beginPath();
+// ctx.arc(250, 150, 50, Math.PI/2, Math.PI ); // full circle
+// ctx.stroke();
+
+// ctx.beginPath();
+// ctx.arc(350, 150, 50, Math.PI, 1.5 * Math.PI ); // full circle
+// ctx.stroke();
+
+// ctx.beginPath();
+// ctx.arc(450, 150, 50, 1.5*Math.PI, 2*Math.PI ); // full circle
+// ctx.stroke();
+
+
+
+// ctx.beginPath();
+// ctx.moveTo(150,150);
+// ctx.lineTo(200, 150);
+// ctx.stroke();
+// ctx.beginPath();
+// ctx.strokeStyle = "green";
+// ctx.arc(150, 150, 50, Math.PI/2, Math.PI ); // full circle
+// ctx.lineTo(150,150);
+// ctx.stroke();
+// // ctx.fill();
+
+// ctx.font = "30px Arial";
+// ctx.fillStyle = "black";
+// ctx.fillText("Hello Canvas!", 1000, 100);
+
+// const img = new Image();
+// img.src = "image.png ";
+// img.onload = function () {
+//   ctx.drawImage(img, 50, 50, 200, 150); // draw when loaded
+// };
+
+// const gradient = ctx.createLinearGradient(10, 10, 510, 110);
+// gradient.addColorStop(0, "red");
+// gradient.addColorStop(0.5, "pink");
+// gradient.addColorStop(1, "blue");
+// ctx.fillStyle = gradient;
+// ctx.fillRect(10, 10, 500, 100);
+
+// canvas.addEventListener("click", function (event) {
+//   console.log("Mouse clicked at", event.offsetX, event.offsetY);
+// });
+
+
+let x = 0;
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(x, 100, 50, 50);
+  x += 2;
+  requestAnimationFrame(animate);
+}
+
+animate();
+
