@@ -33,7 +33,6 @@ body {
     background: #F5F5F5;
     z-index: 10;
     border-bottom: 1px solid #d0d0d0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
     pointer-events: none; /* So mouse events go to the grid below */
 }
 
@@ -41,14 +40,18 @@ body {
     position: fixed;
     background: #F5F5F5;
     z-index: 10;
+    pointer-events: none; /* So mouse events go to the grid below */
     border-bottom: 1px solid #d0d0d0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
 }
 
 .cell-editor {
+    position: fixed;
+    z-index: 100;
+    display: none;
     font-size: 13px;
     font-family: Arial, sans-serif;
-    border: 1px solid #4a90e2;
+    border: 2px solid #107C41;
     box-sizing: border-box;
+    outline: none;
     padding: 2px 4px;
 }

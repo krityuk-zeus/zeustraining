@@ -1,6 +1,7 @@
 import Cell from "./cell.js";
 import Row from "./row.js";
 import Column from "./column.js";
+import Selection from "./Selection.js";
 
 export default class Grid {
     constructor(container, data, totalRows = 100000, totalCols = 1000) {
@@ -76,13 +77,11 @@ export default class Grid {
 
         // Edit any Cell in Excel UI
         this.input = document.createElement('input');
-        this.input.style.position = 'absolute';
-        this.input.style.zIndex = 100;
-        this.input.style.display = 'none';
         this.input.className = 'cell-editor';
         this.container.appendChild(this.input);
 
-        this.canvas.addEventListener('dblclick', (e) => this.handleCellEdit(e));
+        this.canvas.addEventListener('click', (e) => this.handleCellEdit(e, false));//inputTag editing = false
+        this.canvas.addEventListener('dblclick', (e) => this.handleCellEdit(e, true));
         this.input.addEventListener('blur', () => this.saveEdit());// blur event runs on any tag when focus is loosed on that tag
         this.input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') this.saveEdit();
@@ -98,14 +97,42 @@ export default class Grid {
         const visibleWidth = this.container.clientWidth;
         const visibleHeight = this.container.clientHeight;
 
-        this.headerCanvas.width = visibleWidth - sideWidth;
-        this.headerCanvas.height = headerHeight;
+        // this.headerCanvas.width = visibleWidth - sideWidth;
+        // this.headerCanvas.height = headerHeight;
 
-        this.sideCanvas.width = sideWidth;
-        this.sideCanvas.height = visibleHeight - headerHeight;
+        // this.sideCanvas.width = sideWidth;
+        // this.sideCanvas.height = visibleHeight - headerHeight;
 
-        this.canvas.width = visibleWidth - sideWidth;
-        this.canvas.height = visibleHeight - headerHeight;
+        // this.canvas.width = visibleWidth - sideWidth;
+        // this.canvas.height = visibleHeight - headerHeight;
+
+        // For image quality while zooming
+        const dpr = window.devicePixelRatio || 1;
+        // Header Canvas
+        this.headerCanvas.width = (visibleWidth - sideWidth) * dpr;
+        this.headerCanvas.height = headerHeight * dpr;
+        this.headerCanvas.style.width = (visibleWidth - sideWidth) + 'px';
+        this.headerCanvas.style.height = headerHeight + 'px';
+        this.headerCtx.setTransform(1, 0, 0, 1, 0, 0);
+        this.headerCtx.scale(dpr, dpr);
+
+        // Side Canvas
+        this.sideCanvas.width = sideWidth * dpr;
+        this.sideCanvas.height = (visibleHeight - headerHeight) * dpr;
+        this.sideCanvas.style.width = sideWidth + 'px';
+        this.sideCanvas.style.height = (visibleHeight - headerHeight) + 'px';
+        this.sideCtx.setTransform(1, 0, 0, 1, 0, 0);
+        this.sideCtx.scale(dpr, dpr);
+
+        // Main Grid Canvas
+        this.canvas.width = (visibleWidth - sideWidth) * dpr;
+        this.canvas.height = (visibleHeight - headerHeight) * dpr;
+        this.canvas.style.width = (visibleWidth - sideWidth) + 'px';
+        this.canvas.style.height = (visibleHeight - headerHeight) + 'px';
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+        this.ctx.scale(dpr, dpr);
+
+
 
         this.renderHeader();
         this.renderSide();
@@ -117,7 +144,7 @@ export default class Grid {
         const scrollY = this.container.scrollTop; // top se kitna scroll kra h neeche ke taraf / simply means top-left pixel of scroll-container
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // sbse pehle pura visible page part mita diya
-        this.ctx.font = "13px Roboto";
+        this.ctx.font = "13px Arial";
 
         // const startCol = Math.floor(scrollX / this.cellWidth);//pehla col ka number
         // const endCol = startCol + Math.ceil(this.canvas.width / this.cellWidth);//last col ka number
@@ -191,7 +218,7 @@ export default class Grid {
     renderHeader() {
         const scrollX = this.container.scrollLeft;
         this.headerCtx.clearRect(0, 0, this.headerCanvas.width, this.headerCanvas.height);
-        this.headerCtx.font = 'bold 13px Roboto';
+        this.headerCtx.font = '13px Arial';
         this.headerCtx.textAlign = 'center';
         this.headerCtx.textBaseline = 'middle';
 
@@ -207,6 +234,20 @@ export default class Grid {
         for (let j = startCol; j < endCol; j++) {
             const colLabel = this.colToLetter(j);
             const colWidth = this.columns[j].width;
+
+            // Highlight if this is the editing column
+            if (this.editingCell && this.editingCell.colIdx === j) {
+                this.headerCtx.fillStyle = '#CAEAD8'; // light green
+                this.headerCtx.fillRect(x, 0, colWidth, 25);
+
+                // Draw bottom border
+                this.headerCtx.beginPath();
+                this.headerCtx.moveTo(x, 23); // Bottom-left
+                this.headerCtx.lineTo(x + colWidth, 23); // Bottom-right
+                this.headerCtx.strokeStyle = '#107C41'; // dark green
+                this.headerCtx.lineWidth = 2;
+                this.headerCtx.stroke();
+            }
             this.headerCtx.strokeStyle = '#b0b0b0';
             this.headerCtx.strokeRect(x, 0, colWidth, 25);
             this.headerCtx.fillStyle = '#222';
@@ -227,7 +268,7 @@ export default class Grid {
     renderSide() {
         const scrollY = this.container.scrollTop;
         this.sideCtx.clearRect(0, 0, this.sideCanvas.width, this.sideCanvas.height);
-        this.sideCtx.font = 'bold 13px Roboto';
+        this.sideCtx.font = '13px Arial';
         this.sideCtx.textAlign = 'center';
         this.sideCtx.textBaseline = 'middle';
 
@@ -243,6 +284,20 @@ export default class Grid {
         for (let i = startRow; i < endRow; i++) {
             const rowLabel = (i + 1).toString();
             const rowHeight = this.rows[i].height;
+
+            // Highlight if this is the editing row
+            if (this.editingCell && this.editingCell.rowIdx === i) {
+                this.sideCtx.fillStyle = '#CAEAD8'; // light green
+                this.sideCtx.fillRect(0, y, 50, rowHeight);
+
+                // Draw dark green right border
+                this.sideCtx.beginPath();
+                this.sideCtx.moveTo(48, y);
+                this.sideCtx.lineTo(48, y + rowHeight);
+                this.sideCtx.strokeStyle = '#107C41'; // Dark green
+                this.sideCtx.lineWidth = 2;
+                this.sideCtx.stroke();
+            }
             this.sideCtx.strokeStyle = '#b0b0b0';
             this.sideCtx.strokeRect(0, y, 50, rowHeight);
             this.sideCtx.fillStyle = '#222';
@@ -259,12 +314,13 @@ export default class Grid {
         return str;
     }
     // Functions for editing any cell in excel UI
-    handleCellEdit(e) {
+    handleCellEdit(e, shouldFocusOrNot) {//this.input.focus(); would run if its double-click 
+        // canvas.
         const rect = this.canvas.getBoundingClientRect();
-        const headerHeight = 25;
-        const sideWidth = 50;
+        const headerHeight = 25; // for 25 height of top-header having A,B,C,etc written
+        const sideWidth = 50;// for 50 width of side-header
         const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        const y = e.clientY - rect.top;// coordinates of where user clicked wrt top-left of canvas tag
 
         const scrollX = this.container.scrollLeft;
         const scrollY = this.container.scrollTop;
@@ -305,27 +361,35 @@ export default class Grid {
         if (key && this.data[rowIdx]) {
             value = this.data[rowIdx - 1]?.[key] ?? '';
         }
-        this.input.value = value;
-        this.input.focus();
+        this.input.value = value; // loads the associated cell value into the input tag
+        if (shouldFocusOrNot) {
+            this.input.focus();
+        }
 
         // Store editing cell
         this.editingCell = { rowIdx, colIdx, key };
+        this.renderHeader(); // highlight the corresponding cell from header and sider
+        this.renderSide();
     }
 
     saveEdit() {
         if (!this.editingCell) return;
         const { rowIdx, colIdx, key } = this.editingCell;
         if (key && this.data[rowIdx - 1]) {
-            this.data[rowIdx - 1][key] = this.input.value;
+            this.data[rowIdx - 1][key] = this.input.value; // set/update this inputText into this.data
         }
         this.input.style.display = 'none';
         this.editingCell = null;
         this.renderGrid();
+        this.renderHeader();//when cell ko edit kiya to render the header and sidebar as well as we need to remove the highlighted associated header cell and sidebar cell
+        this.renderSide();
     }
 
     cancelEdit() {
         this.input.style.display = 'none';
         this.editingCell = null;
+        this.renderHeader(); //when cell ko edit kiya to render the header and sidebar as well as we need to remove the highlighted associated header cell and sidebar cell
+        this.renderSide();
     }
 
 }

@@ -5,7 +5,7 @@ export default class Cell {
     }
 
     drawCell(ctx, x, y, width = 100, height = 25, content) {
-        ctx.strokeStyle = 'gray';
+        ctx.strokeStyle = '#E0E0E0';
         ctx.strokeRect(x, y, width, height);
 
         ctx.fillStyle = '#000';
