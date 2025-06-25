@@ -14,39 +14,44 @@ body {
 #container {
     width: 100%;
     height: 100%;
+    position: relative; 
     /* background-color: red; */
     /* margin-top: 25px;
     margin-left: 100px; left this much margin for the headers of excel */
-    overflow: scroll; /*container has very big size spacer so it would scroll*/
+    overflow: scroll;/*container has very big size spacer so it would scroll*/
 }
 
 .myCanvas {
     background-color: #FFFFFF;
     position: fixed;
-    /* top:25;
-    left:50; */
+    top: 25px;
+    left: 50px;
     z-index: 10;
 }
 
 .headerCanvas {
     position: fixed;
     background: #F5F5F5;
-    z-index: 10;
+    top: 0px;
+    left: 50px;
+    z-index: 100;
     border-bottom: 1px solid #d0d0d0;
-    pointer-events: none; /* So mouse events go to the grid below */
+    /* So mouse events go to the grid below */
 }
 
-.sideCanvas{
+.sideCanvas {
     position: fixed;
     background: #F5F5F5;
-    z-index: 10;
-    pointer-events: none; /* So mouse events go to the grid below */
+    top: 25px;
+    left: 0px;
+    z-index: 100;
+    /* So mouse events go to the grid below */
     border-bottom: 1px solid #d0d0d0;
 }
 
 .cell-editor {
-    position: fixed;
-    z-index: 100;
+    position: absolute;
+    z-index: 9;
     display: none;
     font-size: 13px;
     font-family: Arial, sans-serif;
