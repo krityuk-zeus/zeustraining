@@ -51,7 +51,7 @@ body {
 
 .cell-editor {
     position: absolute;
-    z-index: 9;
+    z-index: 10;
     display: none;
     font-size: 13px;
     font-family: Arial, sans-serif;

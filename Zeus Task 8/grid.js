@@ -335,6 +335,7 @@ export default class Grid {
                 const maxRow = Math.max(this.selection.anchor.row, this.selection.focus.row);
                 if (i >= minRow && i <= maxRow) isRowSelected = true;
             }
+
             if (isRowSelected) {
                 this.sideCtx.fillStyle = '#CAEAD8'; // light green
                 this.sideCtx.fillRect(0, y, 50, rowHeight);
@@ -365,7 +366,7 @@ export default class Grid {
     }
     // Functions for editing any cell in excel UI
     handleCellEdit(e, shouldFocusOrNot) {//this.input.focus(); would run if its double-click 
-        // canvas.
+        //
         this.saveEdit(); // ensures that any previous cell's edit is saved before starting a new edit, single click me data save nai ho rha tha.
         const rect = this.canvas.getBoundingClientRect();
         const headerHeight = 25; // for 25 height of top-header having A,B,C,etc written
@@ -410,10 +411,10 @@ export default class Grid {
         let key = keys[colIdx];
 
         //
-        if (!key) {
-            // Generate a new key for this column, but do NOT add to all rows here
-            key = "COL" + (colIdx);
-        }
+        // if (!key) {
+        //     // Generate a new key for this column, but do NOT add to all rows here
+        //     key = "COL" + (colIdx);
+        // }
 
         let value = '';
         if (key && this.data[rowIdx]) {
@@ -515,6 +516,7 @@ export default class Grid {
 
     // Below two functions are used for event listener to header and sider so that clicking on them would highlight the corresponding column or row
     handleHeaderClick(e) {
+        this.input.style.display = "none";
         const rect = this.headerCanvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const scrollX = this.container.scrollLeft;
@@ -530,10 +532,11 @@ export default class Grid {
         this.selection.update(this.totalRows - 1, colIdx);
         this.renderGrid();
         this.renderHeader();
-        this.renderSide();
+        this.renderSideReset();
     }
 
     handleSideClick(e) {
+        this.input.style.display = "none";
         const rect = this.sideCanvas.getBoundingClientRect();
         const y = e.clientY - rect.top;
         const scrollY = this.container.scrollTop;
@@ -548,8 +551,23 @@ export default class Grid {
         this.selection.start(rowIdx, 0);
         this.selection.update(rowIdx, this.totalCols - 1);
         this.renderGrid();
-        this.renderHeader();
         this.renderSide();
+        this.renderHeaderReset();
+    }
+
+    renderSideReset() {
+        // Temporarily remove selection to avoid highlighting
+        const prevSelection = this.selection;
+        this.selection = null;
+        this.renderSide();
+        this.selection = prevSelection;
+    }
+    renderHeaderReset() {
+        // Temporarily remove selection to avoid highlighting
+        const prevSelection = this.selection;
+        this.selection = null;
+        this.renderHeader();
+        this.selection = prevSelection;
     }
 
 }
