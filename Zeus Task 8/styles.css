@@ -39,7 +39,6 @@ body {
     left: 50px;
     z-index: 100;
     border-bottom: 1px solid #d0d0d0;
-    /* So mouse events go to the grid below */
 }
 
 .sideCanvas {
@@ -53,13 +52,19 @@ body {
 }
 
 .cell-editor {
-    position: absolute;
+    /* position: absolute; */
+    position: fixed;
     z-index: 10;
     display: none;
     font-size: 13px;
     font-family: Arial, sans-serif;
-    border: 2px solid #107C41;
+    /* border: 2px solid #107C41; */
     box-sizing: border-box;
     outline: none;
+    border: none;
+    /* outline: 2px solid #107C41;  */
+    outline-offset: 0;
+    border-radius: 0;
+    box-shadow: none;
     padding: 2px 4px;
 }
