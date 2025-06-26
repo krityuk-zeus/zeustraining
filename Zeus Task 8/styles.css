@@ -14,11 +14,14 @@ body {
 #container {
     width: 100%;
     height: 100%;
-    position: relative; 
+    position: relative;
     /* background-color: red; */
     /* margin-top: 25px;
     margin-left: 100px; left this much margin for the headers of excel */
-    overflow: scroll;/*container has very big size spacer so it would scroll*/
+    overflow: scroll;
+    /*container has very big size spacer so it would scroll*/
+    cursor: crosshair;
+
 }
 
 .myCanvas {

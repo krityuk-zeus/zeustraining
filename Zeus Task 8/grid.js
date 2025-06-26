@@ -39,6 +39,29 @@ export default class Grid {
         this.sideCanvas.addEventListener('mousedown', this.handleSideClick.bind(this));
 
 
+        // CODE FOR CELL RESIZING: RESIZE WHEN DRAGGED AT HEADER OR SIDEBAR IS BELOW
+        // Add to constructor
+        this.resizingCol = null;
+        this.resizingRow = null;
+        this.startX = null;
+        this.startY = null;
+        this.startWidth = null;
+        this.startHeight = null;
+
+        // Column resize events
+        this.headerCanvas.addEventListener('mousemove', this.handleHeaderMouseMove.bind(this));// when mouse would move over header, the cursor would change if its edge of any header cell
+        this.headerCanvas.addEventListener('mousedown', this.handleHeaderResizeStart.bind(this));
+        document.addEventListener('mousemove', this.handleHeaderResizeMove.bind(this));
+        document.addEventListener('mouseup', this.handleHeaderResizeEnd.bind(this));
+
+        // Row resize events
+        this.sideCanvas.addEventListener('mousemove', this.handleSideMouseMove.bind(this));
+        this.sideCanvas.addEventListener('mousedown', this.handleSideResizeStart.bind(this));
+        document.addEventListener('mousemove', this.handleSideResizeMove.bind(this));
+        document.addEventListener('mouseup', this.handleSideResizeEnd.bind(this));
+
+        // CODE FOR CELL RESIZING: RESIZE WHEN DRAGGED AT HEADER OR SIDEBAR IS ABOVE
+
         this.columns = Array.from({ length: totalCols }, (_, i) => new Column(i, 100));
         this.rows = Array.from({ length: totalRows }, (_, i) => new Row(i, 25)); // these tow lines are just for col row size resize
         // this.columns = [];
@@ -356,14 +379,6 @@ export default class Grid {
             y += rowHeight;
         }
     }
-    colToLetter(index) {
-        let str = '';
-        do {
-            str = String.fromCharCode(65 + (index % 26)) + str;
-            index = Math.floor(index / 26) - 1;
-        } while (index >= 0);
-        return str;
-    }
     // Functions for editing any cell in excel UI
     handleCellEdit(e, shouldFocusOrNot) {//this.input.focus(); would run if its double-click 
         //
@@ -569,5 +584,125 @@ export default class Grid {
         this.renderHeader();
         this.selection = prevSelection;
     }
+
+    // CODE PART-2 FOR CELL RESIZING: RESIZE WHEN DRAGGED AT HEADER OR SIDEBAR IS BELOW
+    // --- Column Resize Handlers ---
+    handleHeaderMouseMove(e) {
+        // When you move the mouse over the column header, this checks if you are near a column edge and changes the cursor to a resize cursor (col-resize).
+        const rect = this.headerCanvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const scrollX = this.container.scrollLeft;
+        let colIdx = 0, sumX = 0;
+        for (const col of this.columns) {
+            if (sumX + col.width > x + scrollX) break;
+            sumX += col.width;
+            colIdx++;
+        }
+        let edge = sumX - scrollX;
+        if (Math.abs(x - edge) < 5 && colIdx > 0) {
+            this.headerCanvas.style.cursor = 'col-resize';
+        } else {
+            this.headerCanvas.style.cursor = '';
+        }
+    }
+
+    handleHeaderResizeStart(e) {
+        // When you press the mouse button down on the header near a column edge, this starts the column resizing process (remembers which column and where you started).
+        const rect = this.headerCanvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const scrollX = this.container.scrollLeft;
+        let colIdx = 0, sumX = 0;
+        for (const col of this.columns) {
+            if (sumX + col.width > x + scrollX) break;
+            sumX += col.width;
+            colIdx++;
+        }
+        let edge = sumX - scrollX;
+        if (Math.abs(x - edge) < 5 && colIdx > 0) {
+            this.resizingCol = colIdx - 1;
+            // When you are near the left edge of column 3 (zero-based index, so colIdx == 3), the code sets resizingCol = 2 (column 2).
+            // This is intentional: dragging the left edge of a column resizes the column to its left, just like Excel
+            this.startX = e.clientX;
+            this.startWidth = this.columns[this.resizingCol].width;
+            e.preventDefault();
+        }
+    }
+
+    handleHeaderResizeMove(e) {
+        // While you are dragging (with the mouse button held down), this updates the width of the column as you move the mouse.
+        if (this.resizingCol !== null) {
+            const dx = e.clientX - this.startX;
+            let newWidth = Math.max(30, this.startWidth + dx); // Minimum width 30px
+            this.columns[this.resizingCol].width = newWidth;
+            this.resizeCanvas();
+        }
+    }
+
+    handleHeaderResizeEnd(e) {
+        // When you release the mouse button, this ends the column resizing process and resets the state.
+        if (this.resizingCol !== null) {
+            this.resizingCol = null;
+            this.startX = null;
+            this.startWidth = null;
+            this.headerCanvas.style.cursor = '';
+        }
+    }
+
+    // --- Row Resize Handlers ---
+    handleSideMouseMove(e) {
+        const rect = this.sideCanvas.getBoundingClientRect();
+        const y = e.clientY - rect.top;
+        const scrollY = this.container.scrollTop;
+        let rowIdx = 0, sumY = 0;
+        for (const row of this.rows) {
+            if (sumY + row.height > y + scrollY) break;
+            sumY += row.height;
+            rowIdx++;
+        }
+        let edge = sumY - scrollY;
+        if (Math.abs(y - edge) < 5 && rowIdx > 0) {
+            this.sideCanvas.style.cursor = 'row-resize';
+        } else {
+            this.sideCanvas.style.cursor = '';
+        }
+    }
+
+    handleSideResizeStart(e) {
+        const rect = this.sideCanvas.getBoundingClientRect();
+        const y = e.clientY - rect.top;
+        const scrollY = this.container.scrollTop;
+        let rowIdx = 0, sumY = 0;
+        for (const row of this.rows) {
+            if (sumY + row.height > y + scrollY) break;
+            sumY += row.height;
+            rowIdx++;
+        }
+        let edge = sumY - scrollY;
+        if (Math.abs(y - edge) < 5 && rowIdx > 0) {
+            this.resizingRow = rowIdx - 1;
+            this.startY = e.clientY;
+            this.startHeight = this.rows[this.resizingRow].height;
+            e.preventDefault();
+        }
+    }
+
+    handleSideResizeMove(e) {
+        if (this.resizingRow !== null) {
+            const dy = e.clientY - this.startY;
+            let newHeight = Math.max(15, this.startHeight + dy); // Minimum height 15px
+            this.rows[this.resizingRow].height = newHeight;
+            this.resizeCanvas();
+        }
+    }
+
+    handleSideResizeEnd(e) {
+        if (this.resizingRow !== null) {
+            this.resizingRow = null;
+            this.startY = null;
+            this.startHeight = null;
+            this.sideCanvas.style.cursor = '';
+        }
+    }
+    // CODE PART-2 FOR CELL RESIZING: RESIZE WHEN DRAGGED AT HEADER OR SIDEBAR IS ABOVE
 
 }
