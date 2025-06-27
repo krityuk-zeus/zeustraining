@@ -2,6 +2,7 @@ import Cell from "./cell.js";
 import Row from "./row.js";
 import Column from "./column.js";
 import Selection from "./Selection.js";
+import AppString from './appstring.js';
 
 export default class Grid {
     constructor(container, data, totalRows = 100000, totalCols = 1000) {
@@ -70,6 +71,11 @@ export default class Grid {
         this.sideCanvas.addEventListener('mousedown', this.handleSideSelectStart.bind(this));
         this.sideCanvas.addEventListener('mousemove', this.handleSideSelectMove.bind(this));
         document.addEventListener('mouseup', this.handleSideSelectEnd.bind(this));
+
+        // Changing data structure of excel,
+        // HashMap<RowMap> structure: this.hashMap[rowIdx][colIdx] = value
+        this.hashMap = {};
+
 
         this.columns = Array.from({ length: totalCols }, (_, i) => new Column(i, 100));
         this.rows = Array.from({ length: totalRows }, (_, i) => new Row(i, 25)); // these tow lines are just for col row size resize
@@ -196,18 +202,15 @@ export default class Grid {
         // const startRow = Math.floor(scrollY / this.cellHeight);
         // const endRow = startRow + Math.ceil(this.canvas.height / this.cellHeight);
 
-        let startCol = 0,
-            sumX = 0;
+        let startCol = 0, sumX = 0;
         for (const col of this.columns) {
             if (sumX + col.width > scrollX) break; // const startCol = Math.floor(scrollX / 100);
             sumX += col.width;
             startCol++;
         }
-        console.log();
         const endCol = Math.min(startCol + 20, this.totalCols); //at most 20col on screen possible
 
-        let startRow = 0,
-            sumY = 0;
+        let startRow = 0, sumY = 0;
         for (const row of this.rows) {
             if (sumY + row.height > scrollY) break;
             sumY += row.height;
@@ -216,18 +219,29 @@ export default class Grid {
         const endRow = Math.min(startRow + 40, this.totalRows);
 
         // Draw Cells
-        // const keys = Object.keys(this.data[0]); // data[0] is just a map
-        const keys = Object.keys(this.data[7]); // data[7] se uthaya because data.json file me 7th par mera naam h and usme dher sare attribute bnaye h
         let y = sumY - scrollY;
         for (let i = startRow; i < endRow; i++) {
             let x = sumX - scrollX;
             for (let j = startCol; j < endCol; j++) {
-                let cellData = `  `;
-                if (keys[j] && this.data[i]) {
-                    // if j<5 then update cellData because when j>-5 keys[j] would be null as only 5 columns are there in data.json
-                    if (i == 0) cellData = keys[j].toUpperCase();
-                    else cellData = this.data[i - 1][keys[j]] ?? " ";
+                const colKey = "col" + j;
+                if (!this.hashMap[i]) this.hashMap[i] = {};
+                if (this.hashMap[i][colKey] === undefined) { // Only initialize if not already set
+                    if (i > 0 && this.data[i - 1] && Object.values(this.data[i - 1])[j] !== undefined) {
+                        this.hashMap[i][colKey] = Object.values(this.data[i - 1])[j];
+                    } else {
+                        this.hashMap[i][colKey] = AppString.emptyString;
+                    }
                 }
+                let cellData = AppString.emptyString;
+                if (i === 0) {
+                    if (this.data[0]) {
+                        const keys = Object.keys(this.data[0]);
+                        cellData = keys[j] ? keys[j].toUpperCase() : AppString.emptyString;
+                    }
+                } else {
+                    cellData = this.hashMap[i][colKey];
+                }
+
                 // --- Selecting multiple cells feature --- (below 3 lines are its part) // 
                 if (this.selection && this.selection.isSelected(i, j)) { // Highlight if its in selection class
                     this.ctx.fillStyle = "#E7F1EC"; // light blue
@@ -283,9 +297,6 @@ export default class Grid {
             }
         }
 
-
-
-
     }
 
     //
@@ -339,7 +350,7 @@ export default class Grid {
     }
 
     colToLetter(index) {
-        let str = "";
+        let str = AppString.emptyString;
         do {
             str = String.fromCharCode(65 + (index % 26)) + str;
             index = Math.floor(index / 26) - 1;
@@ -433,9 +444,6 @@ export default class Grid {
         // Position input
         this.input.style.left = (cellX + sideWidth) + 'px';
         this.input.style.top = (cellY + headerHeight) + 'px';
-        // const containerRect = this.container.getBoundingClientRect();
-        // this.input.style.left = (cellX + sideWidth + containerRect.left) + 'px';
-        // this.input.style.top = (cellY + headerHeight + containerRect.top) + 'px';
         this.input.style.width = this.columns[colIdx].width - 3 + 'px'; // Here I did -3 because input tag was hiding the small green square associated at bottom-down, so input tag ki width kam kr di, -3 kr di
         this.input.style.height = this.rows[rowIdx].height + 'px';
         this.input.style.display = 'block';
@@ -444,15 +452,11 @@ export default class Grid {
         const keys = Object.keys(this.data[0] || {});
         let key = keys[colIdx];
 
-        //
-        // if (!key) {
-        //     // Generate a new key for this column, but do NOT add to all rows here
-        //     key = "COL" + (colIdx);
-        // }
 
-        let value = '';
-        if (key && this.data[rowIdx]) {
-            value = this.data[rowIdx - 1]?.[key] ?? '';
+        const colKey = "col" + colIdx;
+        let value = AppString.emptyString;
+        if (this.hashMap[rowIdx] && this.hashMap[rowIdx][colKey] !== undefined) {
+            value = this.hashMap[rowIdx][colKey];
         }
         this.input.value = value; // loads the associated cell value into the input tag
         if (shouldFocusOrNot) {
@@ -467,14 +471,10 @@ export default class Grid {
 
     saveEdit() {
         if (!this.editingCell) return;
-        const { rowIdx, colIdx, key } = this.editingCell;
-        if (key && this.data[rowIdx - 1]) {
-            // Only add the key to this row if it doesn't exist
-            if (!(key in this.data[rowIdx - 1])) {
-                this.data[rowIdx - 1][key] = "";
-            }
-            this.data[rowIdx - 1][key] = this.input.value; // set/update this inputText into this.data
-        }
+        const { rowIdx, colIdx } = this.editingCell;
+        const colKey = "col" + colIdx;
+        if (!this.hashMap[rowIdx]) this.hashMap[rowIdx] = {};
+        this.hashMap[rowIdx][colKey] = this.input.value;
         this.input.style.display = 'none';
         this.editingCell = null;
         this.renderGrid();
@@ -622,7 +622,7 @@ export default class Grid {
         if (Math.abs(x - edge) < 5 && colIdx > 0) {
             this.headerCanvas.style.cursor = 'col-resize';
         } else {
-            this.headerCanvas.style.cursor = '';
+            this.headerCanvas.style.cursor = AppString.emptyString;
         }
     }
 
@@ -664,7 +664,7 @@ export default class Grid {
             this.resizingCol = null;
             this.startX = null;
             this.startWidth = null;
-            this.headerCanvas.style.cursor = '';
+            this.headerCanvas.style.cursor = AppString.emptyString;
         }
     }
 
@@ -683,7 +683,7 @@ export default class Grid {
         if (Math.abs(y - edge) < 5 && rowIdx > 0) {
             this.sideCanvas.style.cursor = 'row-resize';
         } else {
-            this.sideCanvas.style.cursor = '';
+            this.sideCanvas.style.cursor = AppString.emptyString;
         }
     }
 
@@ -720,7 +720,7 @@ export default class Grid {
             this.resizingRow = null;
             this.startY = null;
             this.startHeight = null;
-            this.sideCanvas.style.cursor = '';
+            this.sideCanvas.style.cursor = AppString.emptyString;
         }
     }
     // CODE PART-2 FOR CELL RESIZING: RESIZE WHEN DRAGGED AT HEADER OR SIDEBAR IS ABOVE
@@ -742,9 +742,9 @@ export default class Grid {
         this.headerSelectEndCol = colIdx;
         this.selection.start(0, colIdx);
         this.selection.update(this.totalRows - 1, colIdx);
-        this.renderGrid();
-        this.renderHeader();
-        this.renderSide();
+        // this.renderGrid();
+        // this.renderHeader();
+        // this.renderSide(); No need to call these 3 functions here they are already called in handleHeaderResizeStart function
     }
 
     handleHeaderSelectMove(e) {
@@ -774,6 +774,7 @@ export default class Grid {
             this.isHeaderSelecting = false;
         }
     }
+    // for multi col select dragging at sidebar
     handleSideSelectStart(e) {
         const rect = this.sideCanvas.getBoundingClientRect();
         const y = e.clientY - rect.top;
@@ -790,9 +791,9 @@ export default class Grid {
         this.sideSelectEndRow = rowIdx;
         this.selection.start(rowIdx, 0);
         this.selection.update(rowIdx, this.totalCols - 1);
-        this.renderGrid();
-        this.renderHeader();
-        this.renderSide();
+        // this.renderGrid();
+        // this.renderHeader();
+        // this.renderSide(); // No need to call these 3 functions, they already ran due to handleSiderResizeStart function
     }
 
     handleSideSelectMove(e) {
