@@ -126,7 +126,7 @@ export default class Grid {
         this.input.id = 'cell-editor';
         this.container.appendChild(this.input);
         this.input.className = 'cell-editor';
-        
+
         this.canvas.addEventListener('pointerdown', (e) => this.handleCellEdit(e)); // adds input tag
         // this.canvas.addEventListener('dblclick', (e) => this.handleCellEdit(e, true));
         this.input.addEventListener('blur', () => this.saveEdit());// blur event runs on any tag when focus is loosed on that tag
@@ -140,7 +140,7 @@ export default class Grid {
                 this.saveEdit();
             }
         });
-        
+
         // **************************************************************************************************************
     }
 
@@ -333,22 +333,26 @@ export default class Grid {
             if (isColSelected) {
                 this.headerCtx.fillStyle = '#CAEAD8'; // light green
                 this.headerCtx.fillRect(x, 0, colWidth, 25);
-                // Draw bottom border
-                this.headerCtx.beginPath();
-                this.headerCtx.moveTo(x, 23.5);
-                this.headerCtx.lineTo(x + colWidth, 23.5);
-                this.headerCtx.strokeStyle = '#107C41';
-                this.headerCtx.lineWidth = 2;
-                this.headerCtx.stroke();
-                
             }
             // Highlight if this column is in the selection wala code is present above
             
             this.headerCtx.lineWidth = 1;
             this.headerCtx.strokeStyle = '#b0b0b0';
-            this.headerCtx.fillStyle = '#222';
             this.headerCtx.strokeRect(x + 0.5, 0 + 0.5, colWidth, 25); // x+0.5 kiya for anti-aliasing, sare 1px draw me kro vo, to avoid making it 2px
+            this.headerCtx.fillStyle = '#222';
             this.headerCtx.fillText(colLabel, x + colWidth / 2, 12.5);//text,posX,posY
+            
+            if (isColSelected) {
+                // Draw bottom border
+                this.headerCtx.beginPath();
+                this.headerCtx.moveTo(x -2, 23.5); // -2,+2 for extra size of dark green line
+                this.headerCtx.lineTo(x +2 + colWidth, 23.5);
+                this.headerCtx.lineWidth = 2;
+                this.headerCtx.strokeStyle = '#107C41';
+                this.headerCtx.stroke();
+                this.headerCtx.fillStyle = '#107C41';
+                this.headerCtx.fillText(colLabel, x + colWidth / 2, 12.5);//text,posX,posY
+            }
             x += colWidth;
         }
     }
@@ -393,21 +397,28 @@ export default class Grid {
             if (isRowSelected) {
                 this.sideCtx.fillStyle = '#CAEAD8'; // light green
                 this.sideCtx.fillRect(0, y, 50, rowHeight);
-                // Draw dark green right border
-                this.sideCtx.beginPath();
-                this.sideCtx.moveTo(48.5, y);
-                this.sideCtx.lineTo(48.5, y + rowHeight);
-                this.sideCtx.strokeStyle = '#107C41';
-                this.sideCtx.lineWidth = 2;
-                this.sideCtx.stroke();
             }
             // Highlight if this row is in the selection is above
-            
+
             this.sideCtx.lineWidth = 1;
             this.sideCtx.strokeStyle = '#b0b0b0';
             this.sideCtx.strokeRect(0.5, y + 0.5, 50, rowHeight); // 0.5 is anti-aliasing
             this.sideCtx.fillStyle = '#222';
             this.sideCtx.fillText(rowLabel, 25, y + rowHeight / 2);
+
+
+            if (isRowSelected) {
+                // Draw dark green right border
+                this.sideCtx.beginPath();
+                this.sideCtx.moveTo(48.5, y - 2);
+                this.sideCtx.lineTo(48.5, y + rowHeight + 2); // +2 fpr extra size of dark green line
+                this.sideCtx.strokeStyle = '#107C41';
+                this.sideCtx.lineWidth = 2;
+                this.sideCtx.stroke();
+                this.sideCtx.fillStyle = '#107C41';
+                this.sideCtx.fillText(rowLabel, 25, y + rowHeight / 2);
+            }
+
             y += rowHeight;
         }
     }
@@ -457,9 +468,9 @@ export default class Grid {
 
         // Position input
         this.input.style.left = (cellX + sideWidth) + 'px';
-        this.input.style.top = (cellY + headerHeight + exelHeaderHeight) + 'px';
+        this.input.style.top = (cellY + headerHeight + exelHeaderHeight +1) + 'px';
         this.input.style.width = this.columns[colIdx].width - 3 + 'px'; // Here I did -3 because input tag was hiding the small green square associated at bottom-down, so input tag ki width kam kr di, -3 kr di
-        this.input.style.height = this.rows[rowIdx].height + 'px';
+        this.input.style.height = this.rows[rowIdx].height -1 + 'px';
         this.input.style.display = 'block';
 
         // Set value
@@ -473,7 +484,7 @@ export default class Grid {
             value = this.hashMap[rowIdx][colKey];
         }
         this.input.value = value; // loads the associated cell value into the input tag
- 
+
 
         // Store editing cell
         this.editingCell = { rowIdx, colIdx, key };
