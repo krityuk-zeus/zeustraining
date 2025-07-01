@@ -5,7 +5,9 @@ import Selection from "./Selection.js";
 import AppString from './appstring.js';
 
 export default class Grid {
+
     constructor(container, data, totalRows = 100000, totalCols = 1000) {
+
         this.container = container;
         this.data = data;
         this.totalRows = totalRows;
@@ -31,13 +33,13 @@ export default class Grid {
         // --- Selecting multiple cells feature --- //
         this.selection = new Selection();
         this.isSelecting = false;
-        this.canvas.addEventListener('mousedown', this.handleSelectionStart.bind(this));
-        this.canvas.addEventListener('mousemove', this.handleSelectionMove.bind(this));
-        document.addEventListener('mouseup', this.handleSelectionEnd.bind(this));
+        this.canvas.addEventListener('pointerdown', this.handleSelectionStart.bind(this)); // brings border at selected-cell
+        window.addEventListener('pointermove', this.handleSelectionMove.bind(this));
+        window.addEventListener('pointerup', this.handleSelectionEnd.bind(this));
 
         // Adding event listener to header and sider so that clicking on them would highlight the corresponding column or row
-        this.headerCanvas.addEventListener('mousedown', this.handleHeaderClick.bind(this));
-        this.sideCanvas.addEventListener('mousedown', this.handleSideClick.bind(this));
+        this.headerCanvas.addEventListener('pointerdown', this.handleHeaderClick.bind(this));
+        this.sideCanvas.addEventListener('pointerdown', this.handleSideClick.bind(this));
 
 
         // CODE FOR CELL RESIZING: RESIZE WHEN DRAGGED AT HEADER OR SIDEBAR IS BELOW
@@ -50,27 +52,27 @@ export default class Grid {
         this.startHeight = null;
 
         // Column resize events
-        this.headerCanvas.addEventListener('mousemove', this.handleHeaderMouseMove.bind(this));// when mouse would move over header, the cursor would change if its edge of any header cell
-        this.headerCanvas.addEventListener('mousedown', this.handleHeaderResizeStart.bind(this));
-        document.addEventListener('mousemove', this.handleHeaderResizeMove.bind(this));
-        document.addEventListener('mouseup', this.handleHeaderResizeEnd.bind(this));
+        this.headerCanvas.addEventListener('pointermove', this.handleHeaderpointermove.bind(this));// when mouse would move over header, the cursor would change if its edge of any header cell
+        this.headerCanvas.addEventListener('pointerdown', this.handleHeaderResizeStart.bind(this));
+        window.addEventListener('pointermove', this.handleHeaderResizeMove.bind(this));
+        window.addEventListener('pointerup', this.handleHeaderResizeEnd.bind(this));
 
         // Row resize events
-        this.sideCanvas.addEventListener('mousemove', this.handleSideMouseMove.bind(this));
-        this.sideCanvas.addEventListener('mousedown', this.handleSideResizeStart.bind(this));
-        document.addEventListener('mousemove', this.handleSideResizeMove.bind(this));
-        document.addEventListener('mouseup', this.handleSideResizeEnd.bind(this));
+        this.sideCanvas.addEventListener('pointermove', this.handleSidepointermove.bind(this));
+        this.sideCanvas.addEventListener('pointerdown', this.handleSideResizeStart.bind(this));
+        window.addEventListener('pointermove', this.handleSideResizeMove.bind(this));
+        window.addEventListener('pointerup', this.handleSideResizeEnd.bind(this));
 
         // CODE FOR CELL RESIZING: RESIZE WHEN DRAGGED AT HEADER OR SIDEBAR IS ABOVE
 
         //multiple row/col selection
-        this.headerCanvas.addEventListener('mousedown', this.handleHeaderSelectStart.bind(this));
-        this.headerCanvas.addEventListener('mousemove', this.handleHeaderSelectMove.bind(this));
-        document.addEventListener('mouseup', this.handleHeaderSelectEnd.bind(this));
+        this.headerCanvas.addEventListener('pointerdown', this.handleHeaderSelectStart.bind(this));
+        window.addEventListener('pointermove', this.handleHeaderSelectMove.bind(this));
+        window.addEventListener('pointerup', this.handleHeaderSelectEnd.bind(this));
 
-        this.sideCanvas.addEventListener('mousedown', this.handleSideSelectStart.bind(this));
-        this.sideCanvas.addEventListener('mousemove', this.handleSideSelectMove.bind(this));
-        document.addEventListener('mouseup', this.handleSideSelectEnd.bind(this));
+        this.sideCanvas.addEventListener('pointerdown', this.handleSideSelectStart.bind(this));
+        window.addEventListener('pointermove', this.handleSideSelectMove.bind(this));
+        window.addEventListener('pointerup', this.handleSideSelectEnd.bind(this));
 
         // Changing data structure of excel,
         // HashMap<RowMap> structure: this.hashMap[rowIdx][colIdx] = value
@@ -118,14 +120,15 @@ export default class Grid {
         // Initial setup
         this.resizeCanvas();
 
+        // **************************************************************************************************************
         // Edit any Cell in Excel UI
         this.input = document.createElement('input');
         this.input.id = 'cell-editor';
         this.container.appendChild(this.input);
         this.input.className = 'cell-editor';
-
-        this.canvas.addEventListener('mousedown', (e) => this.handleCellEdit(e, false));//inputTag editing = false //mousedown brought cursor on any-cell
-        this.canvas.addEventListener('dblclick', (e) => this.handleCellEdit(e, true));
+        
+        this.canvas.addEventListener('pointerdown', (e) => this.handleCellEdit(e)); // adds input tag
+        // this.canvas.addEventListener('dblclick', (e) => this.handleCellEdit(e, true));
         this.input.addEventListener('blur', () => this.saveEdit());// blur event runs on any tag when focus is loosed on that tag
         this.input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') this.saveEdit();
@@ -137,7 +140,8 @@ export default class Grid {
                 this.saveEdit();
             }
         });
-
+        
+        // **************************************************************************************************************
     }
 
     //
@@ -191,16 +195,10 @@ export default class Grid {
 
     renderGrid() {
         const scrollX = this.container.scrollLeft; // left towards right kitna scroll kra ha, starting me ye zero rhega
-        const scrollY = this.container.scrollTop; // top se kitna scroll kra h neeche ke taraf / simply means top-left pixel of scroll-container
+        const scrollY = this.container.scrollTop;  // top se kitna scroll kra h neeche ke taraf / simply means top-left pixel of scroll-container
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // sbse pehle pura visible page part mita diya
         this.ctx.font = "13px Arial";
-
-        // const startCol = Math.floor(scrollX / this.cellWidth);//pehla col ka number
-        // const endCol = startCol + Math.ceil(this.canvas.width / this.cellWidth);//last col ka number
-
-        // const startRow = Math.floor(scrollY / this.cellHeight);
-        // const endRow = startRow + Math.ceil(this.canvas.height / this.cellHeight);
 
         let startCol = 0, sumX = 0;
         for (const col of this.columns) {
@@ -243,9 +241,12 @@ export default class Grid {
                 }
 
                 // --- Selecting multiple cells feature --- (below 3 lines are its part) // 
-                if (this.selection && this.selection.isSelected(i, j)) { // Highlight if its in selection class
-                    this.ctx.fillStyle = "#E7F1EC"; // light blue
-                    this.ctx.fillRect(x, y, this.columns[j].width, this.rows[i].height);
+                if (this.selection && this.selection.isSelected(i, j)) {
+                    // Only skip fill if this is the anchor cell
+                    if (!(i === this.selection.anchor.row && j === this.selection.anchor.col)) { // 1 cell is not colored
+                        this.ctx.fillStyle = "#E7F1EC";
+                        this.ctx.fillRect(x, y, this.columns[j].width, this.rows[i].height);
+                    }
                 }
 
                 const cell = new Cell(this.rows[i], this.columns[j]);
@@ -256,6 +257,7 @@ export default class Grid {
             }
             y += this.rows[i].height;
         }
+
         // --- Selecting multiple cells feature --- //
         // Draw green border around selection (like Excel)
         if (this.selection && this.selection.anchor && this.selection.focus) {
@@ -302,7 +304,7 @@ export default class Grid {
     //
     renderHeader() {
         const scrollX = this.container.scrollLeft;
-        this.headerCtx.clearRect(0, 0, this.headerCanvas.width, this.headerCanvas.height);
+        this.headerCtx.clearRect(0.5, 0.5, this.headerCanvas.width, this.headerCanvas.height);
         this.headerCtx.font = '13px Arial';
         this.headerCtx.textAlign = 'center';
         this.headerCtx.textBaseline = 'middle';
@@ -338,12 +340,14 @@ export default class Grid {
                 this.headerCtx.strokeStyle = '#107C41';
                 this.headerCtx.lineWidth = 2;
                 this.headerCtx.stroke();
+                
             }
             // Highlight if this column is in the selection wala code is present above
-
+            
+            this.headerCtx.lineWidth = 1;
             this.headerCtx.strokeStyle = '#b0b0b0';
-            this.headerCtx.strokeRect(x + 0.5, 0 + 0.5, colWidth, 25); // x+0.5 kiya for anti-aliasing, sare 1px draw me kro vo, to avoid making it 2px
             this.headerCtx.fillStyle = '#222';
+            this.headerCtx.strokeRect(x + 0.5, 0 + 0.5, colWidth, 25); // x+0.5 kiya for anti-aliasing, sare 1px draw me kro vo, to avoid making it 2px
             this.headerCtx.fillText(colLabel, x + colWidth / 2, 12.5);//text,posX,posY
             x += colWidth;
         }
@@ -398,7 +402,8 @@ export default class Grid {
                 this.sideCtx.stroke();
             }
             // Highlight if this row is in the selection is above
-
+            
+            this.sideCtx.lineWidth = 1;
             this.sideCtx.strokeStyle = '#b0b0b0';
             this.sideCtx.strokeRect(0.5, y + 0.5, 50, rowHeight); // 0.5 is anti-aliasing
             this.sideCtx.fillStyle = '#222';
@@ -407,12 +412,21 @@ export default class Grid {
         }
     }
     // Functions for editing any cell in excel UI
-    handleCellEdit(e, shouldFocusOrNot) {//this.input.focus(); would run if its double-click 
-        //
+
+    /**
+     * 
+     * @param {*} e 
+     * @param {*} shouldFocusOrNot 
+     * @returns 
+     */
+    handleCellEdit(e) {
+        // this function injects input tag at first selected cell
+        // also it re-renders 
         this.saveEdit(); // ensures that any previous cell's edit is saved before starting a new edit, single click me data save nai ho rha tha.
         const rect = this.canvas.getBoundingClientRect();
         const headerHeight = 25; // for 25 height of top-header having A,B,C,etc written
         const sideWidth = 50;// for 50 width of side-header
+        const exelHeaderHeight = 50; // excel ka header
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;// coordinates of where user clicked wrt top-left of canvas tag
 
@@ -443,7 +457,7 @@ export default class Grid {
 
         // Position input
         this.input.style.left = (cellX + sideWidth) + 'px';
-        this.input.style.top = (cellY + headerHeight) + 'px';
+        this.input.style.top = (cellY + headerHeight + exelHeaderHeight) + 'px';
         this.input.style.width = this.columns[colIdx].width - 3 + 'px'; // Here I did -3 because input tag was hiding the small green square associated at bottom-down, so input tag ki width kam kr di, -3 kr di
         this.input.style.height = this.rows[rowIdx].height + 'px';
         this.input.style.display = 'block';
@@ -459,9 +473,7 @@ export default class Grid {
             value = this.hashMap[rowIdx][colKey];
         }
         this.input.value = value; // loads the associated cell value into the input tag
-        if (shouldFocusOrNot) {
-            this.input.focus();
-        }
+ 
 
         // Store editing cell
         this.editingCell = { rowIdx, colIdx, key };
@@ -607,7 +619,7 @@ export default class Grid {
 
     // CODE PART-2 FOR CELL RESIZING: RESIZE WHEN DRAGGED AT HEADER OR SIDEBAR IS BELOW
     // --- Column Resize Handlers ---
-    handleHeaderMouseMove(e) {
+    handleHeaderpointermove(e) {
         // When you move the mouse over the column header, this checks if you are near a column edge and changes the cursor to a resize cursor (col-resize).
         const rect = this.headerCanvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -669,7 +681,7 @@ export default class Grid {
     }
 
     // --- Row Resize Handlers ---
-    handleSideMouseMove(e) {
+    handleSidepointermove(e) {
         const rect = this.sideCanvas.getBoundingClientRect();
         const y = e.clientY - rect.top;
         const scrollY = this.container.scrollTop;
@@ -742,9 +754,9 @@ export default class Grid {
         this.headerSelectEndCol = colIdx;
         this.selection.start(0, colIdx);
         this.selection.update(this.totalRows - 1, colIdx);
-        // this.renderGrid();
-        // this.renderHeader();
-        // this.renderSide(); No need to call these 3 functions here they are already called in handleHeaderResizeStart function
+        this.renderGrid();
+        this.renderHeader();
+        this.renderSide();
     }
 
     handleHeaderSelectMove(e) {
@@ -791,9 +803,9 @@ export default class Grid {
         this.sideSelectEndRow = rowIdx;
         this.selection.start(rowIdx, 0);
         this.selection.update(rowIdx, this.totalCols - 1);
-        // this.renderGrid();
-        // this.renderHeader();
-        // this.renderSide(); // No need to call these 3 functions, they already ran due to handleSiderResizeStart function
+        this.renderGrid();
+        this.renderHeader();
+        this.renderSide();
     }
 
     handleSideSelectMove(e) {
