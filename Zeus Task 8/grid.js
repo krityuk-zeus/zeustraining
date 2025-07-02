@@ -86,6 +86,20 @@ export default class Grid {
         //     this.columns.push(new Column(i, this.cellWidth));
         // }
 
+        // request Animation Frame
+        this.needsRender = false;
+        this.scheduleRender = () => {
+            if (!this.needsRender) {
+                this.needsRender = true;
+                requestAnimationFrame(() => {
+                    this.renderHeader();
+                    this.renderSide();
+                    this.renderGrid();
+                    this.needsRender = false;
+                });
+            }
+        };
+
         const virtualWidth = totalCols * 100; // CELLWidth and cellHeight are 100 and 0 resp
         const virtualHeight = totalRows * 25;
 
@@ -99,23 +113,9 @@ export default class Grid {
         this.container.appendChild(this.sideCanvas);
         this.container.appendChild(this.canvas);
 
-        let needsRender = false;
-        this.container.addEventListener("scroll", () => {
-            if (!needsRender) {
-                needsRender = true;
-                requestAnimationFrame(() => {
-                    // optimise performace
-                    this.renderGrid();
-                    this.renderHeader();
-                    this.renderSide();
-                    needsRender = false;
-                });
-            }
-        });
+        this.container.addEventListener("scroll", this.scheduleRender);
         this.resizeCanvas = this.resizeCanvas.bind(this);
-        window.addEventListener("resize", this.resizeCanvas);
-        // window.addEventListener('resize',()=> this.resizeCanvas); 
-        // //????????????????????????????????????????????????????????????????????????????????????
+        window.addEventListener("resize", this.resizeCanvas); // resize me .bind(this) likhna padta h warna scroller fixed ho jaega screen par
 
         // Initial setup
         this.resizeCanvas();
@@ -187,10 +187,7 @@ export default class Grid {
         this.ctx.scale(dpr, dpr);
 
 
-
-        this.renderHeader();
-        this.renderSide();
-        this.renderGrid();
+        this.scheduleRender();
     }
 
     renderGrid() {
@@ -335,18 +332,18 @@ export default class Grid {
                 this.headerCtx.fillRect(x, 0, colWidth, 25);
             }
             // Highlight if this column is in the selection wala code is present above
-            
+
             this.headerCtx.lineWidth = 1;
             this.headerCtx.strokeStyle = '#b0b0b0';
             this.headerCtx.strokeRect(x + 0.5, 0 + 0.5, colWidth, 25); // x+0.5 kiya for anti-aliasing, sare 1px draw me kro vo, to avoid making it 2px
             this.headerCtx.fillStyle = '#222';
             this.headerCtx.fillText(colLabel, x + colWidth / 2, 12.5);//text,posX,posY
-            
+
             if (isColSelected) {
                 // Draw bottom border
                 this.headerCtx.beginPath();
-                this.headerCtx.moveTo(x -2, 23.5); // -2,+2 for extra size of dark green line
-                this.headerCtx.lineTo(x +2 + colWidth, 23.5);
+                this.headerCtx.moveTo(x - 2, 23.5); // -2,+2 for extra size of dark green line
+                this.headerCtx.lineTo(x + 2 + colWidth, 23.5);
                 this.headerCtx.lineWidth = 2;
                 this.headerCtx.strokeStyle = '#107C41';
                 this.headerCtx.stroke();
@@ -468,9 +465,9 @@ export default class Grid {
 
         // Position input
         this.input.style.left = (cellX + sideWidth) + 'px';
-        this.input.style.top = (cellY + headerHeight + exelHeaderHeight +1) + 'px';
+        this.input.style.top = (cellY + headerHeight + exelHeaderHeight + 1) + 'px';
         this.input.style.width = this.columns[colIdx].width - 3 + 'px'; // Here I did -3 because input tag was hiding the small green square associated at bottom-down, so input tag ki width kam kr di, -3 kr di
-        this.input.style.height = this.rows[rowIdx].height -1 + 'px';
+        this.input.style.height = this.rows[rowIdx].height - 1 + 'px';
         this.input.style.display = 'block';
 
         // Set value
@@ -500,9 +497,7 @@ export default class Grid {
         this.hashMap[rowIdx][colKey] = this.input.value;
         this.input.style.display = 'none';
         this.editingCell = null;
-        this.renderGrid();
-        this.renderHeader();//when cell ko edit kiya to render the header and sidebar as well as we need to remove the highlighted associated header cell and sidebar cell
-        this.renderSide();
+        this.scheduleRender();
     }
 
     cancelEdit() {
@@ -547,9 +542,7 @@ export default class Grid {
         if (!cell) return;
         this.isSelecting = true;
         this.selection.start(cell.row, cell.col);
-        this.renderGrid();
-        this.renderHeader();
-        this.renderSide();
+        this.scheduleRender();
     }
 
     handleSelectionMove(e) {
@@ -557,9 +550,7 @@ export default class Grid {
         const cell = this.getCellFromMouseEvent(e);
         if (!cell) return;
         this.selection.update(cell.row, cell.col);
-        this.renderGrid();
-        this.renderHeader();
-        this.renderSide();
+        this.scheduleRender();
     }
 
     handleSelectionEnd(e) {
@@ -586,9 +577,7 @@ export default class Grid {
         // Select the whole column
         this.selection.start(0, colIdx);
         this.selection.update(this.totalRows - 1, colIdx);
-        this.renderGrid();
-        this.renderHeader();
-        this.renderSide();
+        this.scheduleRender();
         // this.renderSideReset(); // If you want excel like if click on a header-cell then only that col should get highlighted, the sidebar should not get highlighted then use renderSideReset() function instead of sid renderSideFunction
     }
 
@@ -607,9 +596,7 @@ export default class Grid {
         // Select the whole row
         this.selection.start(rowIdx, 0);
         this.selection.update(rowIdx, this.totalCols - 1);
-        this.renderGrid();
-        this.renderSide();
-        this.renderHeader();
+        this.scheduleRender();
         // this.renderHeaderReset(); // If you want excel like if click on a header-cell then only that col should get highlighted, the sidebar should not get highlighted then use renderSideReset() function instead of sid renderSideFunction
     }
 
@@ -765,9 +752,7 @@ export default class Grid {
         this.headerSelectEndCol = colIdx;
         this.selection.start(0, colIdx);
         this.selection.update(this.totalRows - 1, colIdx);
-        this.renderGrid();
-        this.renderHeader();
-        this.renderSide();
+        this.scheduleRender();
     }
 
     handleHeaderSelectMove(e) {
@@ -787,9 +772,7 @@ export default class Grid {
         const maxCol = Math.max(this.headerSelectStartCol, this.headerSelectEndCol);
         this.selection.start(0, minCol);
         this.selection.update(this.totalRows - 1, maxCol);
-        this.renderGrid();
-        this.renderHeader();
-        this.renderSide();
+        this.scheduleRender();
     }
 
     handleHeaderSelectEnd(e) {
@@ -814,9 +797,7 @@ export default class Grid {
         this.sideSelectEndRow = rowIdx;
         this.selection.start(rowIdx, 0);
         this.selection.update(rowIdx, this.totalCols - 1);
-        this.renderGrid();
-        this.renderHeader();
-        this.renderSide();
+        this.scheduleRender();
     }
 
     handleSideSelectMove(e) {
@@ -836,9 +817,7 @@ export default class Grid {
         const maxRow = Math.max(this.sideSelectStartRow, this.sideSelectEndRow);
         this.selection.start(minRow, 0);
         this.selection.update(maxRow, this.totalCols - 1);
-        this.renderGrid();
-        this.renderHeader();
-        this.renderSide();
+        this.scheduleRender();
     }
 
     handleSideSelectEnd(e) {
