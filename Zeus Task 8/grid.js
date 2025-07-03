@@ -38,8 +38,11 @@ export default class Grid {
         window.addEventListener('pointerup', this.handleSelectionEnd.bind(this));
 
         // Adding event listener to header and sider so that clicking on them would highlight the corresponding column or row
-        this.headerCanvas.addEventListener('pointerdown', this.handleHeaderClick.bind(this));
-        this.sideCanvas.addEventListener('pointerdown', this.handleSideClick.bind(this));
+        // No need of below two listeners as they are already covered in multi-row/multi-col select 
+        // this.headerCanvas.addEventListener('pointerdown', this.handleHeaderClick.bind(this));
+        // this.sideCanvas.addEventListener('pointerdown', this.handleSideClick.bind(this));
+
+
 
 
         // CODE FOR CELL RESIZING: RESIZE WHEN DRAGGED AT HEADER OR SIDEBAR IS BELOW
@@ -52,18 +55,22 @@ export default class Grid {
         this.startHeight = null;
 
         // Column resize events
-        this.headerCanvas.addEventListener('pointermove', this.handleHeaderpointermove.bind(this));// when mouse would move over header, the cursor would change if its edge of any header cell
+        this.headerCanvas.addEventListener('pointermove', this.handleHeaderpointermove.bind(this));// when mouse would move over header, the cursor would change to resize-cursor, when its edge of any header cell
         this.headerCanvas.addEventListener('pointerdown', this.handleHeaderResizeStart.bind(this));
         window.addEventListener('pointermove', this.handleHeaderResizeMove.bind(this));
         window.addEventListener('pointerup', this.handleHeaderResizeEnd.bind(this));
 
         // Row resize events
         this.sideCanvas.addEventListener('pointermove', this.handleSidepointermove.bind(this));
-        this.sideCanvas.addEventListener('pointerdown', this.handleSideResizeStart.bind(this));
+        // this.sideCanvas.addEventListener('pointerdown', this.handleSideResizeStart.bind(this));
         window.addEventListener('pointermove', this.handleSideResizeMove.bind(this));
         window.addEventListener('pointerup', this.handleSideResizeEnd.bind(this));
 
         // CODE FOR CELL RESIZING: RESIZE WHEN DRAGGED AT HEADER OR SIDEBAR IS ABOVE
+
+
+
+
 
         //multiple row/col selection
         this.headerCanvas.addEventListener('pointerdown', this.handleHeaderSelectStart.bind(this));
@@ -92,9 +99,9 @@ export default class Grid {
             if (!this.needsRender) {
                 this.needsRender = true;
                 requestAnimationFrame(() => {
+                    this.renderGrid();
                     this.renderHeader();
                     this.renderSide();
-                    this.renderGrid();
                     this.needsRender = false;
                 });
             }
@@ -161,7 +168,8 @@ export default class Grid {
         // this.canvas.height = visibleHeight - headerHeight;
 
         // For image quality while zooming
-        const dpr = window.devicePixelRatio || 1;
+        let dpr = window.devicePixelRatio || 1;
+        if (dpr < 1) dpr = 1;
         // Header Canvas
         this.headerCanvas.width = (visibleWidth - sideWidth) * dpr;
         this.headerCanvas.height = headerHeight * dpr;
@@ -485,8 +493,8 @@ export default class Grid {
 
         // Store editing cell
         this.editingCell = { rowIdx, colIdx, key };
-        this.renderHeader(); // highlight the corresponding cell from header and sider
-        this.renderSide();
+        this.scheduleRender(); // highlight the corresponding cell from header and sider
+
     }
 
     saveEdit() {
@@ -503,8 +511,8 @@ export default class Grid {
     cancelEdit() {
         this.input.style.display = 'none';
         this.editingCell = null;
-        this.renderHeader(); //when cell ko edit kiya to render the header and sidebar as well as we need to remove the highlighted associated header cell and sidebar cell
-        this.renderSide();
+        //when cell ko edit kiya to render the header and sidebar as well as we need to remove the highlighted associated header cell and sidebar cell
+        this.scheduleRender();
     }
 
     // --- Selecting multiple cells feature --- //
@@ -556,64 +564,10 @@ export default class Grid {
     handleSelectionEnd(e) {
         if (this.isSelecting) {
             this.isSelecting = false;
-            this.renderGrid();
+            // this.renderGrid();  // I think no need of renderGrid here so i commented it out
         }
     }
 
-
-    // Below two functions are used for event listener to header and sider so that clicking on them would highlight the corresponding column or row
-    handleHeaderClick(e) {
-        this.input.style.display = "none";
-        const rect = this.headerCanvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const scrollX = this.container.scrollLeft;
-        let colIdx = 0, sumX = 0;
-        for (const col of this.columns) {
-            if (sumX + col.width > x + scrollX) break;
-            sumX += col.width;
-            colIdx++;
-        }
-        if (colIdx >= this.totalCols) return;
-        // Select the whole column
-        this.selection.start(0, colIdx);
-        this.selection.update(this.totalRows - 1, colIdx);
-        this.scheduleRender();
-        // this.renderSideReset(); // If you want excel like if click on a header-cell then only that col should get highlighted, the sidebar should not get highlighted then use renderSideReset() function instead of sid renderSideFunction
-    }
-
-    handleSideClick(e) {
-        this.input.style.display = "none";
-        const rect = this.sideCanvas.getBoundingClientRect();
-        const y = e.clientY - rect.top;
-        const scrollY = this.container.scrollTop;
-        let rowIdx = 0, sumY = 0;
-        for (const row of this.rows) {
-            if (sumY + row.height > y + scrollY) break;
-            sumY += row.height;
-            rowIdx++;
-        }
-        if (rowIdx >= this.totalRows) return;
-        // Select the whole row
-        this.selection.start(rowIdx, 0);
-        this.selection.update(rowIdx, this.totalCols - 1);
-        this.scheduleRender();
-        // this.renderHeaderReset(); // If you want excel like if click on a header-cell then only that col should get highlighted, the sidebar should not get highlighted then use renderSideReset() function instead of sid renderSideFunction
-    }
-
-    renderSideReset() {
-        // Temporarily remove selection to avoid highlighting
-        const prevSelection = this.selection;
-        this.selection = null;
-        this.renderSide();
-        this.selection = prevSelection;
-    }
-    renderHeaderReset() {
-        // Temporarily remove selection to avoid highlighting
-        const prevSelection = this.selection;
-        this.selection = null;
-        this.renderHeader();
-        this.selection = prevSelection;
-    }
 
     // CODE PART-2 FOR CELL RESIZING: RESIZE WHEN DRAGGED AT HEADER OR SIDEBAR IS BELOW
     // --- Column Resize Handlers ---
@@ -753,6 +707,8 @@ export default class Grid {
         this.selection.start(0, colIdx);
         this.selection.update(this.totalRows - 1, colIdx);
         this.scheduleRender();
+        //
+        // REPAINT THE HEADER CELLS HERE TO DARK GREEN
     }
 
     handleHeaderSelectMove(e) {
