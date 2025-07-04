@@ -1,7 +1,6 @@
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
 html,
@@ -39,8 +38,8 @@ body {
     top: 50px;
     left: 50px;
     z-index: 100;
-    /* border-bottom: 1px solid #d0d0d0; */
-    cursor : url('assets/arrow-down.svg'), cell; /* svg image would take its time to load, till then pointer showing*/
+    border-bottom: 1px solid #b0b0b0;
+    cursor : url('assets/arrow-down.svg'), pointer; /* svg image would take its time to load, till then pointer showing*/
 }
 
 .sideCanvas {
@@ -49,7 +48,8 @@ body {
     top: 75px;
     left: 0px;
     z-index: 100;
-    /* border: 1px solid #b0b0b0; */
+    border-right: 1px solid #b0b0b0;
+    /* border-top: 1px solid #b0b0b0; */
     cursor : url('assets/arrow-right.svg'), pointer; /* svg image would take its time to load, till then pointer showing*/
 }
 
@@ -72,8 +72,6 @@ body {
 
 /*  Excel-Header */
 .excel-header {
-    position: relative;
-    bottom : -1px;
     display: flex;
     justify-content: space-between;
     align-items: center;
