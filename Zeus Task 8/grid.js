@@ -186,8 +186,8 @@ export default class Grid {
         this.container.appendChild(this.input);
         this.input.className = 'cell-editor';
 
-        this.canvas.addEventListener('pointerdown', (e) => this.handleCellEdit(e)); // adds input tag
-        // this.canvas.addEventListener('dblclick', (e) => this.handleCellEdit(e, true));
+        // this.canvas.addEventListener('pointerdown', (e) => this.handleCellEdit(e)); // adds input tag
+        this.canvas.addEventListener('dblclick', (e) => this.handleCellEdit(e));
         this.input.addEventListener('blur', () => this.saveEdit());// blur event runs on any tag when focus is loosed on that tag
         this.input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') this.saveEdit();
@@ -382,7 +382,15 @@ export default class Grid {
             const colLabel = this.colToLetter(j);
             const colWidth = this.columns[j].width;
 
-            // Highlight if this column is in the selection wala code is present below
+            // 1. Check if header selection is active for this column
+            let isHeaderSelected = false;
+            if (this.isHeaderSelecting && this.headerSelectStartCol !== undefined && this.headerSelectEndCol !== undefined) {
+                const minCol = Math.min(this.headerSelectStartCol, this.headerSelectEndCol);
+                const maxCol = Math.max(this.headerSelectStartCol, this.headerSelectEndCol);
+                if (j >= minCol && j <= maxCol) isHeaderSelected = true;
+            }
+
+            // 2. Check if cell selection is active for this column
             let isColSelected = false;
             if (this.selection && this.selection.anchor && this.selection.focus) {
                 const minCol = Math.min(this.selection.anchor.col, this.selection.focus.col);
@@ -390,33 +398,42 @@ export default class Grid {
                 if (j >= minCol && j <= maxCol)
                     isColSelected = true;
             }
-            if (isColSelected) {
+
+            // 3. Paint header cell
+            if (isHeaderSelected) {
+                this.headerCtx.fillStyle = '#107C41'; // dark green
+                this.headerCtx.fillRect(x, 0, colWidth, 25);
+                this.headerCtx.fillStyle = '#fff'; // white text
+                this.headerCtx.fillText(colLabel, x + colWidth / 2, 12.5);
+            } else if (isColSelected) {
                 this.headerCtx.fillStyle = '#CAEAD8'; // light green
                 this.headerCtx.fillRect(x, 0, colWidth, 25);
+                this.headerCtx.fillStyle = '#222';
+                this.headerCtx.fillText(colLabel, x + colWidth / 2, 12.5);
+            } else {
+                this.headerCtx.fillStyle = '#fff'; // default background
+                this.headerCtx.fillRect(x, 0, colWidth, 25);
+                this.headerCtx.fillStyle = '#222';
+                this.headerCtx.fillText(colLabel, x + colWidth / 2, 12.5);
             }
-            // Highlight if this column is in the selection wala code is present above
 
+            // Border
             this.headerCtx.lineWidth = 1;
             this.headerCtx.strokeStyle = '#b0b0b0';
-            this.headerCtx.strokeRect(x + 0.5, 0 + 0.5, colWidth, 25); // x+0.5 kiya for anti-aliasing, sare 1px draw me kro vo, to avoid making it 2px
-            this.headerCtx.fillStyle = '#222';
-            this.headerCtx.fillText(colLabel, x + colWidth / 2, 12.5);//text,posX,posY
+            this.headerCtx.strokeRect(x + 0.5, 0.5, colWidth, 25);
 
-            if (isColSelected) {
-                // Draw bottom border
+            // Bottom border for selected columns
+            if (isHeaderSelected || isColSelected) {
                 this.headerCtx.beginPath();
-                this.headerCtx.moveTo(x - 2, 23.5); // -2,+2 for extra size of dark green line
+                this.headerCtx.moveTo(x - 2, 23.5);
                 this.headerCtx.lineTo(x + 2 + colWidth, 23.5);
                 this.headerCtx.lineWidth = 2;
                 this.headerCtx.strokeStyle = '#107C41';
                 this.headerCtx.stroke();
-                this.headerCtx.fillStyle = '#107C41';
-                this.headerCtx.fillText(colLabel, x + colWidth / 2, 12.5);//text,posX,posY
             }
             x += colWidth;
         }
     }
-
     colToLetter(index) {
         let str = AppString.emptyString;
         do {
@@ -447,6 +464,14 @@ export default class Grid {
             const rowHeight = this.rows[i].height;
 
             // Highlight if this row is in the selection is below
+            // 1. Check if side selection is active for this row
+            let isSideSelected = false;
+            if (this.isSideSelecting && this.sideSelectStartRow !== undefined && this.sideSelectEndRow !== undefined) {
+                const minRow = Math.min(this.sideSelectStartRow, this.sideSelectEndRow);
+                const maxRow = Math.max(this.sideSelectStartRow, this.sideSelectEndRow);
+                if (i >= minRow && i <= maxRow) isSideSelected = true;
+            }
+            // 2. Check if cell selection is active for this row
             let isRowSelected = false;
             if (this.selection && this.selection.anchor && this.selection.focus) {
                 const minRow = Math.min(this.selection.anchor.row, this.selection.focus.row);
@@ -454,29 +479,38 @@ export default class Grid {
                 if (i >= minRow && i <= maxRow) isRowSelected = true;
             }
 
-            if (isRowSelected) {
+            // 3. Paint side cell
+            if (isSideSelected) {
+                this.sideCtx.fillStyle = '#107C41'; // dark green
+                this.sideCtx.fillRect(0, y, 50, rowHeight);
+                this.sideCtx.fillStyle = '#fff'; // white text
+                this.sideCtx.fillText(rowLabel, 25, y + rowHeight / 2);
+            } else if (isRowSelected) {
                 this.sideCtx.fillStyle = '#CAEAD8'; // light green
                 this.sideCtx.fillRect(0, y, 50, rowHeight);
+                this.sideCtx.fillStyle = '#222';
+                this.sideCtx.fillText(rowLabel, 25, y + rowHeight / 2);
+            } else {
+                this.sideCtx.fillStyle = '#fff'; // default background
+                this.sideCtx.fillRect(0, y, 50, rowHeight);
+                this.sideCtx.fillStyle = '#222';
+                this.sideCtx.fillText(rowLabel, 25, y + rowHeight / 2);
             }
-            // Highlight if this row is in the selection is above
 
+            // Border
             this.sideCtx.lineWidth = 1;
             this.sideCtx.strokeStyle = '#b0b0b0';
             this.sideCtx.strokeRect(0.5, y + 0.5, 50, rowHeight); // 0.5 is anti-aliasing of canvas drawing
-            this.sideCtx.fillStyle = '#222';
-            this.sideCtx.fillText(rowLabel, 25, y + rowHeight / 2);
 
 
-            if (isRowSelected) {
-                // Draw dark green right border
+            // Draw dark green right border
+            if (isSideSelected || isRowSelected) {
                 this.sideCtx.beginPath();
                 this.sideCtx.moveTo(48.5, y - 2);
                 this.sideCtx.lineTo(48.5, y + rowHeight + 2); // +2 px extra size of dark green line
                 this.sideCtx.strokeStyle = '#107C41';
                 this.sideCtx.lineWidth = 2;
                 this.sideCtx.stroke();
-                this.sideCtx.fillStyle = '#107C41';
-                this.sideCtx.fillText(rowLabel, 25, y + rowHeight / 2);
             }
 
             y += rowHeight;
@@ -544,6 +578,7 @@ export default class Grid {
             value = this.hashMap[rowIdx][colKey];
         }
         this.input.value = value; // loads the associated cell value into the input tag
+        this.input.focus(); // focus on input tag so that user can type in it
 
 
         // Store editing cell
