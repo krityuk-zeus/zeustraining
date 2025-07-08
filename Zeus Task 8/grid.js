@@ -186,8 +186,8 @@ export default class Grid {
         this.container.appendChild(this.input);
         this.input.className = 'cell-editor';
 
-        // this.canvas.addEventListener('pointerdown', (e) => this.handleCellEdit(e)); // adds input tag
-        this.canvas.addEventListener('dblclick', (e) => this.handleCellEdit(e));
+        this.canvas.addEventListener('pointerdown', (e) => this.handleCellEdit(e)); // adds input tag
+        // this.canvas.addEventListener('dblclick', (e) => this.handleCellEdit(e, true));
         this.input.addEventListener('blur', () => this.saveEdit());// blur event runs on any tag when focus is loosed on that tag
         this.input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') this.saveEdit();
@@ -578,7 +578,6 @@ export default class Grid {
             value = this.hashMap[rowIdx][colKey];
         }
         this.input.value = value; // loads the associated cell value into the input tag
-        this.input.focus(); // focus on input tag so that user can type in it
 
 
         // Store editing cell
@@ -740,6 +739,7 @@ export default class Grid {
 
     handleHeaderResizeStart(e) {
         // Improved: Allow resizing from both left and right edges of columns (except very first left edge)
+        this.input.style.display = 'none'; // Hide input when resizing header
         const rect = this.headerCanvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
@@ -814,6 +814,7 @@ export default class Grid {
 
     handleSideResizeStart(e) {
         // Improved: Allow resizing from both top and bottom edges of rows (except very first top edge)
+        this.input.style.display = 'none'; // Hide input when resizing header
         const rect = this.sideCanvas.getBoundingClientRect();
         const y = e.clientY - rect.top;
         const scrollY = this.container.scrollTop;
