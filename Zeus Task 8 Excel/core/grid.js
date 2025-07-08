@@ -3,11 +3,13 @@ import Row from "../components/row.js";
 import Column from "../components/column.js";
 import Selection from "./Selection.js";
 import AppString from '../AppString/appstring.js';
+import TouchHandler from '../touch_handler/touch_handler.js';
 
 
 /**
  * Grid class represents a grid structure for displaying and interacting with data in a tabular format.
  * It includes features like json-file upload and display, cell editing, resizing, undo-redo, command-patternd and selection.
+ * Its constructor injects the canvas, header, and sidebar into the container element.
  */
 export default class Grid {
     /**
@@ -66,6 +68,8 @@ export default class Grid {
         this.selection = new Selection();
         this.isSelecting = false;
 
+        
+        
         /**
          * Handles the start of a cell selection when the user presses down on the main grid canvas.
          * brings border at selected-cell

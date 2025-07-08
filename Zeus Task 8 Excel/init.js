@@ -11,6 +11,6 @@ import loadDefaultData from './services/load_default_data.js';
  */
 export default function initializeApp() {
   const header = createExcelHeader(handleUpload);
-  document.body.prepend(header); // Conatainer is already injected into body in index.html
+  document.body.prepend(header); // Conatainer is already injected into body in index.html, So we would have to prepend the header.
   loadDefaultData();
 }
