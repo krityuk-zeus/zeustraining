@@ -1,4 +1,4 @@
-import Grid from './grid.js';
+import Grid from "../core/grid.js";
 
 
 /**
@@ -14,8 +14,11 @@ const container = document.getElementById('container');
 let grid = null;
 
 /**
- * Handles user-uploaded JSON to update the grid.
- * /**
+ * WhenEver upload button is clicked, it will call the handleUpload function,
+ * which will clear the previous data of grid by container.innerHTML = '';
+ * previous canvas,headerCanvas etc will be removed,
+ * and inject the new canvas, headerCanvas, siderCanvas etc into container.
+ * 
  * Handles the upload of a JSON file to update the grid.
  * It creates a file input element, reads the file, clears previous data of grid by container.innerHTML = ''; and updates the grid with the new data.
  */
@@ -32,7 +35,14 @@ export default async function handleUpload() {
 
     try {
       const json = JSON.parse(await file.text());
-      container.innerHTML = '';
+      /**
+       * One need to write container.innerHTML = ''; inside the grid class itself
+       * To clear the previous data before rendering the new grid.
+       *  If we wrote container.innerHTML = ''; here itself, then since grid has window.event listeners, and setTimeout inside it, so grid instance would not get cleared.
+      */
+      if (grid)
+        grid.destroy(); // container.innerHTML = '';
+
       grid = new Grid(container, json);
     } catch (err) {
       alert(`Invalid JSON: ${err.message}`);

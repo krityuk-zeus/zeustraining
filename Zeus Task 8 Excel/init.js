@@ -1,11 +1,13 @@
-import createExcelHeader from './header.js';
-import handleUpload from './uploader.js';
-import loadDefaultData from './load_default_data.js';
+import createExcelHeader from './components/header.js';
+import handleUpload from './services/uploader.js';
+import loadDefaultData from './services/load_default_data.js';
 
 /**
- * Initializes the Excel-like grid UI:
- * - Adds header with Upload button.
+ * Initializes the Excel-like UI:
+ * - Creates and appends the header with an Upload button.
  * - Loads default data to initialize the grid.
+ * NOTE : loadDefaultData function would call the constructor of grid,
+ * and grid-constructor is having the canvas, header, and sidebar etc injected into the container.
  */
 export default function initializeApp() {
   const header = createExcelHeader(handleUpload);

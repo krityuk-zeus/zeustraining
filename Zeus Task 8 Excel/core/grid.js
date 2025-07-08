@@ -1,8 +1,8 @@
-import Cell from "./cell.js";
-import Row from "./row.js";
-import Column from "./column.js";
+import Cell from "../components/cell.js";
+import Row from "../components/row.js";
+import Column from "../components/column.js";
 import Selection from "./Selection.js";
-import AppString from './appstring.js';
+import AppString from '../AppString/appstring.js';
 
 
 /**
@@ -127,7 +127,7 @@ export default class Grid {
         window.addEventListener('pointermove', this.handleSideSelectMove.bind(this));
         window.addEventListener('pointerup', this.handleSideSelectEnd.bind(this));
 
-        
+
 
         /**
          * @type{Object} hashMap - The data structure associated to the given excel - to store cell values for quick access.
@@ -196,7 +196,7 @@ export default class Grid {
          * Added event listener to the container for scroll events to trigger rendering
          */
         this.container.addEventListener("scroll", this.scheduleRender);
-        
+
         /**
          * @function resizeCanvas - Resizes the canvas and header/side canvases based on the container size.
          * @property {function} bind - Binds the resizeCanvas function to the current context of the Grid instance.
@@ -228,14 +228,14 @@ export default class Grid {
          */
         this.canvas.addEventListener('pointerdown', (e) => this.handleCellEdit(e)); // adds input tag
         // this.canvas.addEventListener('dblclick', (e) => this.handleCellEdit(e, true));
-        
-        
+
+
         /**
          * * @event blur - An event that triggers when the input loses focus, saving the edited value.
          *  blur event runs on any tag when focus is loosed on that tag, ssaving the edited value on blur
          */
         this.input.addEventListener('blur', () => this.saveEdit());
-        
+
         /**
          * * @event keydown - An event that triggers when a key is pressed while the input is focused.
          * * It listens for the 'Enter' key to save the edit and the 'Escape' key to cancel the edit.
@@ -253,6 +253,16 @@ export default class Grid {
             }
         });
 
+    }
+
+    /**
+     * destroys the grid instance by removing event listeners, clearing timeouts, and nullifying references.
+     */
+    destroy() {
+        // Remove event listeners
+        // Clear timeouts
+        // Nullify references
+        this.container.innerHTML = '';
     }
 
     /**

@@ -10,6 +10,8 @@ export default class Cell {
         // ctx.strokeRect(x , y, width, height); // 0.5 is anti aliasing, did for 1px lines else it was becoming 2px
 
         ctx.fillStyle = '#000';
+        if(content.length > 15) 
+            content = content.slice(0, 10) + '...';
         ctx.fillText(content, x + 4, y + 16);
     }
 

@@ -1,7 +1,18 @@
-import Grid from './grid.js';
+import Grid from "../core/grid.js";
 
+
+/**
+ * Main container for the grid.
+ * This is where the grid will be rendered.
+ */
 const container = document.getElementById('container');
+
+/**
+ * Grid instance that will be created and managed.
+ * It will be initialized with the default data or updated with user-uploaded data.
+ */
 let grid = null;
+
 
 /**
  * Loads the default data, from a JSON file, and calls the constructor of grid.
@@ -10,7 +21,7 @@ let grid = null;
  */
 export default async function loadDefaultData() {
   try {
-    const res = await fetch('data/data.json');
+    const res = await fetch('json/data.json');
     const data = await res.json();
     grid = new Grid(container, data);
   } catch (err) {
