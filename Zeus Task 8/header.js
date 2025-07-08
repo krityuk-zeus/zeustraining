@@ -1,3 +1,10 @@
+/**
+ * Creates a styled header element for the Excel UI, including title, Undo, Redo, and Upload buttons.
+ * The Upload button triggers a callback when clicked.
+ *
+ * @param {Function} onUploadClick - The callback function to execute when the Upload button is clicked.
+ * @returns {HTMLElement} The constructed header DOM element with all buttons and title.
+ */
 export default function createExcelHeader(onUploadClick) {
   const header = document.createElement('header');
   header.className = 'excel-header';

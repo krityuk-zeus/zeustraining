@@ -127,8 +127,7 @@ export default class Grid {
         window.addEventListener('pointermove', this.handleSideSelectMove.bind(this));
         window.addEventListener('pointerup', this.handleSideSelectEnd.bind(this));
 
-        // MULTIPLE ROW COLUMN SELECTION CODE IS PRESENT ABOVE ---------------------------------------
-
+        
 
         /**
          * @type{Object} hashMap - The data structure associated to the given excel - to store cell values for quick access.
@@ -136,7 +135,12 @@ export default class Grid {
         this.hashMap = {};
 
 
-
+        /**
+         * @type {number[]} columns - An array of Column objects representing the columns in the grid.
+         * @property {number} width - The width of each column, default is 100 pixels.
+         * @type {number[]} rows - An array of Row objects representing the rows in the grid.
+         * @property {number} height - The height of each row, default is 25 pixels. 
+        */
         this.columns = Array.from({ length: totalCols }, (_, i) => new Column(i, 100));
         this.rows = Array.from({ length: totalRows }, (_, i) => new Row(i, 25));
         // these two lines are just for col row size resize
@@ -146,6 +150,10 @@ export default class Grid {
         // }
 
         // request Animation Frame
+        /**
+         * @type {boolean} needsRender - Indicates whether the grid needs to be re-rendered.
+         * @property {function} scheduleRender - A function that schedules a render of the grid using requestAnimationFrame.
+         */
         this.needsRender = false;
         this.scheduleRender = () => {
             if (!this.needsRender) {
@@ -159,40 +167,85 @@ export default class Grid {
             }
         };
 
+
         const virtualWidth = totalCols * 100; // CELLWidth and cellHeight are 100 and 0 resp
         const virtualHeight = totalRows * 25;
 
         // Dummy spacer to enable scrolling
+        /**
+         * @type {HTMLDivElement} spacer - A spacer element to enable scrolling in the container.
+         * @property {string} style.width - The width of the spacer element, calculated based on the total width of the grid.
+         * @property {string} style.height - The height of the spacer element, calculated based on the total height of the grid.
+         */
         const spacer = document.createElement("div");
         spacer.style.width = virtualWidth + 50 + "px"; // 50 is sidebar width and 25 here is top-header width
         spacer.style.height = virtualHeight + 25 + "px";
 
+        /**
+         * * @type {HTMLDivElement} container - The main container element for the grid.
+         * @property {HTMLCanvasElement} headerCanvas - The canvas element for rendering the column headers.
+         * @property {HTMLCanvasElement} sideCanvas - The canvas element for rendering the row headers.
+         * @property {HTMLCanvasElement} canvas - The main canvas element for rendering the grid.
+         */
         this.container.appendChild(spacer);
         this.container.appendChild(this.headerCanvas);
         this.container.appendChild(this.sideCanvas);
         this.container.appendChild(this.canvas);
 
+        /**
+         * Added event listener to the container for scroll events to trigger rendering
+         */
         this.container.addEventListener("scroll", this.scheduleRender);
-        this.resizeCanvas = this.resizeCanvas.bind(this);
-        window.addEventListener("resize", this.resizeCanvas); // resize me .bind(this) likhna padta h warna scroller fixed ho jaega screen par
+        
+        /**
+         * @function resizeCanvas - Resizes the canvas and header/side canvases based on the container size.
+         * @property {function} bind - Binds the resizeCanvas function to the current context of the Grid instance.
+         * Added event listener to the window for resize events to adjust the canvas size dynamically.
+         */
+        window.addEventListener("resize", this.resizeCanvas.bind(this)); // resize me .bind(this) likhna padta h warna scroller fixed ho jaega screen par
 
-        // Initial setup
+
+        /**
+         *  At initialization, the resizeCanvas function is called to set the canvas size based on the container dimensions.
+         *  Initial setup
+         */
         this.resizeCanvas();
 
-        // **************************************************************************************************************
+        // ***********************************************************************************************************************************************
         // Edit any Cell in Excel UI
+        /**
+         * @type {HTMLInputElement} input - An input element for editing cell values.
+         * 
+         */
         this.input = document.createElement('input');
         this.input.id = 'cell-editor';
         this.container.appendChild(this.input);
         this.input.className = 'cell-editor';
 
+
+        /**
+         * * Adds event listeners to the canvas and input elements for handling cell editing.
+         */
         this.canvas.addEventListener('pointerdown', (e) => this.handleCellEdit(e)); // adds input tag
         // this.canvas.addEventListener('dblclick', (e) => this.handleCellEdit(e, true));
-        this.input.addEventListener('blur', () => this.saveEdit());// blur event runs on any tag when focus is loosed on that tag
+        
+        
+        /**
+         * * @event blur - An event that triggers when the input loses focus, saving the edited value.
+         *  blur event runs on any tag when focus is loosed on that tag, ssaving the edited value on blur
+         */
+        this.input.addEventListener('blur', () => this.saveEdit());
+        
+        /**
+         * * @event keydown - An event that triggers when a key is pressed while the input is focused.
+         * * It listens for the 'Enter' key to save the edit and the 'Escape' key to cancel the edit.
+         */
         this.input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') this.saveEdit();
             if (e.key === 'Escape') this.cancelEdit();
+            //*********************************************  ADD KEY-EVENTS ***************************************************************** */
         });
+
         // Hide input and save edit when scrolling (like Excel)
         this.container.addEventListener('scroll', () => {
             if (this.input.style.display === 'block') {
@@ -200,24 +253,16 @@ export default class Grid {
             }
         });
 
-        // **************************************************************************************************************
     }
 
-    //
+    /**
+     * Resizes thE canvas and header/sideR canvases based on the container size.
+     */
     resizeCanvas() {
         const headerHeight = 25;
         const sideWidth = 50;
         const visibleWidth = this.container.clientWidth;
         const visibleHeight = this.container.clientHeight;
-
-        // this.headerCanvas.width = visibleWidth - sideWidth;
-        // this.headerCanvas.height = headerHeight;
-
-        // this.sideCanvas.width = sideWidth;
-        // this.sideCanvas.height = visibleHeight - headerHeight;
-
-        // this.canvas.width = visibleWidth - sideWidth;
-        // this.canvas.height = visibleHeight - headerHeight;
 
         // For image quality while zooming
         let dpr = window.devicePixelRatio || 1;
@@ -516,12 +561,12 @@ export default class Grid {
             y += rowHeight;
         }
     }
-    // Functions for editing any cell in excel UI
 
+
+    // Functions for editing any cell in excel UI
     /**
      * 
      * @param {*} e 
-     * @param {*} shouldFocusOrNot 
      * @returns 
      */
     handleCellEdit(e) {
@@ -860,7 +905,7 @@ export default class Grid {
             this.sideCanvas.style.cursor = AppString.emptyString;
         }
     }
-    // CODE PART-2 FOR CELL RESIZING: RESIZE WHEN DRAGGED AT HEADER OR SIDEBAR IS ABOVE
+
 
     // multiple row-col selection
     handleHeaderSelectStart(e) {
@@ -962,16 +1007,3 @@ export default class Grid {
 
 // Ek or listener bna ki scroll hote hi "input ka data us cell me save and input ka display none "
 // because input ko fixed hi rkhne wale hai hm
-
-
-// Ask sir that when am dbl-clicking then the coming input tag is hiding this small green square
-// I have kept z-index of canvas and input-tag both equal and are 10
-
-
-
-
-
-
-// Hey change cursor at header and sider like excel
-
-// aliasing is done for when 1px lines makes  -- 0.5
