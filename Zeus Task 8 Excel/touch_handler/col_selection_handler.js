@@ -42,18 +42,17 @@ export default class ColSelectionHandler {
         if (e.target !== this.grid.headerCanvas) return false;
         const rect = this.grid.headerCanvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
         const scrollX = this.grid.container.scrollLeft;
         let left = 0;
         for (let j = 0; j < this.grid.columns.length; j++) {
             const col = this.grid.columns[j];
             // Check left edge (not for first column)
-            if (j > 0 && Math.abs(x - left) < 5 && y < 25) {
+            if (j > 0 && Math.abs(x - left) < 5 ) {
                 this.resizingCol = j - 1;
                 return false;
             }
             // Check right edge (for all columns except last pixel after last col)
-            if (Math.abs(x - (left + col.width)) < 10 && y < 25) {
+            if (Math.abs(x - (left + col.width)) < 5) {
                 this.resizingCol = j;
                 return false;
             }
@@ -68,6 +67,7 @@ export default class ColSelectionHandler {
      * @param {PointerEvent} e - The pointer down event.
      */
     onPointerDown(e) {
+        this.grid.selection.type = 'col-selection'; // Set selection type to column-selection
         this.grid.input.style.display = 'none'; // Hide input to prevent focus issues
         const rect = this.grid.headerCanvas.getBoundingClientRect();
         const x = e.clientX - rect.left;

@@ -12,7 +12,7 @@ export default class TouchHandler {
     /**
      * Initializes the TouchHandler.
      */
-    constructor() {
+    constructor(grid) {
         /**
          * List of registered pointer event handlers.
          * @type {PointerHandler[]}
@@ -24,6 +24,7 @@ export default class TouchHandler {
          * @type {PointerHandler|null}
          */
         this.currHandler = null;
+        this.grid = grid;
     }
 
     /**
@@ -40,6 +41,8 @@ export default class TouchHandler {
      */
     onPointerDown(e) {
         for (const handler of this.handlers) {
+                // this.grid.isHeaderSelecting = false; // Reset header selection state
+                // this.grid.isSideSelecting = false; // Reset sidebar selection state
             if (handler.hitTest(e)) {
                 this.curHandler = handler;
                 handler.onPointerDown(e);

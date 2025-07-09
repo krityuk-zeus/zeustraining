@@ -1,6 +1,7 @@
 export default class Selection {
     constructor() {
         this.clear();
+        this.type = 'cell'; // Default selection type // its values can be --> cell or col-selection or row-selection
     }
 
     // Start selection at (row, col)

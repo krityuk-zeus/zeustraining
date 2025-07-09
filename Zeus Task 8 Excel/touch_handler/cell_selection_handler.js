@@ -19,6 +19,7 @@ export default class CellSelectionHandler {
     }
 
     onPointerDown(e) {
+        this.grid.selection.type = 'cell'; // Set selection type to cell
         if (e.button !== 0) return; // Only left mouse button, left button ke liye its 0 mid ke liye 1 right ke liye 2 
         const cell = this.grid.getCellFromMouseEvent(e);
         if (!cell) return;

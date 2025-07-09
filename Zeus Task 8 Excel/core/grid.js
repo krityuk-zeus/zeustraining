@@ -77,7 +77,7 @@ export default class Grid {
         /**
          * @type {TouchHandler} touchHandler - An instance of TouchHandler to manage touch events and gestures.
          */
-        this.touchHandler = new TouchHandler();
+        this.touchHandler = new TouchHandler(this);
 
         /**
          * Unified Event Listeners of whole grid
@@ -433,7 +433,7 @@ export default class Grid {
 
             // 1. Check if header selection is active for this column
             let isHeaderSelected = false;
-            if (this.isHeaderSelecting && this.headerSelectStartCol !== undefined && this.headerSelectEndCol !== undefined) {
+            if (this.selection.type === "col-selection" && this.headerSelectStartCol !== undefined && this.headerSelectEndCol !== undefined) {
                 const minCol = Math.min(this.headerSelectStartCol, this.headerSelectEndCol);
                 const maxCol = Math.max(this.headerSelectStartCol, this.headerSelectEndCol);
                 if (j >= minCol && j <= maxCol) isHeaderSelected = true;
@@ -515,7 +515,7 @@ export default class Grid {
             // Highlight if this row is in the selection is below
             // 1. Check if side selection is active for this row
             let isSideSelected = false;
-            if (this.isSideSelecting && this.sideSelectStartRow !== undefined && this.sideSelectEndRow !== undefined) {
+            if (this.selection.type === "row-selection" && this.sideSelectStartRow !== undefined && this.sideSelectEndRow !== undefined) {
                 const minRow = Math.min(this.sideSelectStartRow, this.sideSelectEndRow);
                 const maxRow = Math.max(this.sideSelectStartRow, this.sideSelectEndRow);
                 if (i >= minRow && i <= maxRow) isSideSelected = true;
