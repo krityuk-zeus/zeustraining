@@ -3,7 +3,13 @@ import Row from "../components/row.js";
 import Column from "../components/column.js";
 import Selection from "./Selection.js";
 import AppString from '../AppString/appstring.js';
+
 import TouchHandler from '../touch_handler/touch_handler.js';
+import CellSelectionHandler from "../touch_handler/cell_selection_handler.js";
+import ColResizeHandler from "../touch_handler/col_resize_handler.js";
+import ColSelectionHandler from "../touch_handler/col_selection_handler.js";
+import RowResizeHandler from "../touch_handler/row_resize_handler.js";
+import RowSelectionHandler from "../touch_handler/row_selection_handler.js";
 
 
 /**
@@ -68,68 +74,52 @@ export default class Grid {
         this.selection = new Selection();
         this.isSelecting = false;
 
-        
-        
         /**
-         * Handles the start of a cell selection when the user presses down on the main grid canvas.
-         * brings border at selected-cell
-         * Handles cell selection movement as the user moves the pointer.
-         * Handles the end of a cell selection when the user releases the pointer.
+         * @type {TouchHandler} touchHandler - An instance of TouchHandler to manage touch events and gestures.
          */
-        this.canvas.addEventListener('pointerdown', this.handleSelectionStart.bind(this));
-        window.addEventListener('pointermove', this.handleSelectionMove.bind(this));
-        window.addEventListener('pointerup', this.handleSelectionEnd.bind(this));
-
-
-        // CODE FOR RESIZING: RESIZE WHEN DRAGGED AT HEADER OR SIDEBAR, CODE IS PRESENT BELOW -----------------
-        /**
-         * Handles the start of a cell selection when the user presses down on the header canvas.
-         * @type{number} resizingCol - The index of the column being resized.
-         * @type{number} resizingRow - The index of the row being resized.
-         * @property {number} startX - The initial X coordinate of the pointer when resizing starts.
-         * @property {number} startY - The initial Y coordinate of the pointer when resizing starts.
-         * @property {number} startWidth - The initial width of the column being resized.
-         * @property {number} startHeight - The initial height of the row being resized.
-         */
-        this.resizingCol = null;
-        this.resizingRow = null;
-        this.startX = null;
-        this.startY = null;
-        this.startWidth = null;
-        this.startHeight = null;
+        this.touchHandler = new TouchHandler();
 
         /**
-         * Column resize events
-         * Handles pointer movement over the header canvas to change the cursor style when hovering over resizable edges.
+         * Unified Event Listeners of whole grid
+         * Adds event listeners to the container for pointer events.
+         * These listeners handle pointer down, move, and up events for cell selection, col-row selection and col-row resizing.
+         * These functions of this.grid would call touchHandler methods to manage touch interactions.
          */
+        this.container.addEventListener('pointerdown', (e) => this.onPointerDown(e));
+        window.addEventListener('pointermove', (e) => this.onPointerMove(e));
+        window.addEventListener('pointerup', () => this.onPointerUp());
+
+        // Registering handlers for touch events
+        this.touchHandler.registerHandler(new CellSelectionHandler (this));
+        this.touchHandler.registerHandler(new ColResizeHandler(this));
+        this.touchHandler.registerHandler(new ColSelectionHandler(this));
+        this.touchHandler.registerHandler(new RowSelectionHandler(this));
+        this.touchHandler.registerHandler(new RowResizeHandler(this));
+
+
+
+
+
+        // THIS EVENT LISTENER WOULD NOT BE SHIFTED INTO TOUCHHANDLER
+        // TODO : Tackle these later, these should get shifted to touchHandler how
         this.headerCanvas.addEventListener('pointermove', this.handleHeaderpointermove.bind(this));// when mouse would move over header, the cursor would change to resize-cursor, when its edge of any header cell
-        this.headerCanvas.addEventListener('pointerdown', this.handleHeaderResizeStart.bind(this));
-        window.addEventListener('pointermove', this.handleHeaderResizeMove.bind(this));
-        window.addEventListener('pointerup', this.handleHeaderResizeEnd.bind(this));
-
-        // Row resize events
         this.sideCanvas.addEventListener('pointermove', this.handleSidepointermove.bind(this));
-        this.sideCanvas.addEventListener('pointerdown', this.handleSideResizeStart.bind(this));
-        window.addEventListener('pointermove', this.handleSideResizeMove.bind(this));
-        window.addEventListener('pointerup', this.handleSideResizeEnd.bind(this));
-
-        // CODE FOR CELL RESIZING: RESIZE WHEN DRAGGED AT HEADER OR SIDEBAR, CODE IS PRESENT ABOVE ---------------
 
 
 
 
-
+        
         // MULTIPLE ROW COLUMN SELECTION CODE IS PRESENT BELOW ---------------------------------------
         /**
          * Handles the start of a MULTI ROW COLUMN selection when the user presses down on the header canvas.
         */
-        this.headerCanvas.addEventListener('pointerdown', this.handleHeaderSelectStart.bind(this));
-        window.addEventListener('pointermove', this.handleHeaderSelectMove.bind(this));
-        window.addEventListener('pointerup', this.handleHeaderSelectEnd.bind(this));
+        // this.headerCanvas.addEventListener('pointerdown', this.handleHeaderSelectStart.bind(this));
+        // window.addEventListener('pointermove', this.handleHeaderSelectMove.bind(this));
+        // window.addEventListener('pointerup', this.handleHeaderSelectEnd.bind(this));
 
-        this.sideCanvas.addEventListener('pointerdown', this.handleSideSelectStart.bind(this));
-        window.addEventListener('pointermove', this.handleSideSelectMove.bind(this));
-        window.addEventListener('pointerup', this.handleSideSelectEnd.bind(this));
+        // this.sideCanvas.addEventListener('pointerdown', this.handleSideSelectStart.bind(this));
+        // window.addEventListener('pointermove', this.handleSideSelectMove.bind(this));
+        // window.addEventListener('pointerup', this.handleSideSelectEnd.bind(this));
 
 
 
@@ -663,8 +653,32 @@ export default class Grid {
         this.scheduleRender();
     }
 
-    // --- Selecting multiple cells feature --- //
-    getCellFromMouseEvent(e) { // this func if for send the mouse event and get row,col number in return
+    /**
+     * 
+     * POINTER HANDLER FUNCTIONS
+     * Handles pointer down events on the canvas,headerCanvas and siderCanvas.
+     * @param {PointerEvent} e - The pointer event object.
+     * 
+     */
+    onPointerDown(e) {
+        this.touchHandler.onPointerDown(e);
+    }
+    onPointerMove(e) {
+        this.touchHandler.onPointerMove(e);
+    }
+    onPointerUp() {
+        this.touchHandler.onPointerUp();
+    }
+
+
+    /**
+     * 
+     * @param {PointerEvent} e 
+     * @returns {null|{row: number, col: number}}
+     * This function calculates the row and column indices based on the mouse event coordinates.
+     * This func iS for send the mouse event as argument and get row,col number in return
+     */
+    getCellFromMouseEvent(e) {
         const rect = this.canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
@@ -692,87 +706,9 @@ export default class Grid {
         return { row: rowIdx, col: colIdx };
     }
 
-    handleSelectionStart(e) {
-        if (e.button !== 0) return; // Only left mouse button, left button ke liye its 0 mid ke liye 1 right ke liye 2 
-        const cell = this.getCellFromMouseEvent(e);
-        if (!cell) return;
-        this.isSelecting = true;
-        this.selection.start(cell.row, cell.col);
-        this.scheduleRender();
-    }
 
-    handleSelectionMove(e) {
-        if (!this.isSelecting) return;
-        const cell = this.getCellFromMouseEvent(e);
-        if (!cell) return;
-        this.selection.update(cell.row, cell.col);
-
-        // Track the last pointer event for use in auto-scroll interval
-        this._lastPointerEvent = e;
-        this.setupAutoScroll(e);
-        this.scheduleRender();
-    }
-
-    /**
-    * Handles Excel-like auto-scrolling, which happens during multi cell selection, when pointer is near the edge during selection.
-    * @param {PointerEvent} e
-    */
-    setupAutoScroll(e) {
-        if (this._autoScrollInterval) {
-            clearInterval(this._autoScrollInterval);
-            this._autoScrollInterval = null;
-        }
-        const rect = this.container.getBoundingClientRect();
-        const scrollZone = 30; // px near border
-        const scrollSpeed = 30; // px per interval
-        let dx = 0, dy = 0;
-        if (e.clientY < rect.top + scrollZone) {
-            dy = -scrollSpeed;
-        } else if (e.clientY > rect.bottom - scrollZone) {
-            dy = scrollSpeed;
-        }
-        if (e.clientX < rect.left + scrollZone) {
-            dx = -scrollSpeed;
-        } else if (e.clientX > rect.right - scrollZone) {
-            dx = scrollSpeed;
-        }
-        if (dx === 0 && dy === 0) return;
-        this._autoScrollInterval = setInterval(() => {
-            // Only scroll if not already at the edge
-            if (dx < 0 && this.container.scrollLeft > 0) {
-                this.container.scrollLeft = Math.max(0, this.container.scrollLeft + dx);
-            } else if (dx > 0 && this.container.scrollLeft < this.container.scrollWidth - this.container.clientWidth) {
-                this.container.scrollLeft = Math.min(this.container.scrollWidth - this.container.clientWidth, this.container.scrollLeft + dx);
-            }
-            if (dy < 0 && this.container.scrollTop > 0) {
-                this.container.scrollTop = Math.max(0, this.container.scrollTop + dy);
-            } else if (dy > 0 && this.container.scrollTop < this.container.scrollHeight - this.container.clientHeight) {
-                this.container.scrollTop = Math.min(this.container.scrollHeight - this.container.clientHeight, this.container.scrollTop + dy);
-            }
-            // --- Update selection to follow auto-scroll ---
-            const pointerEvent = this._lastPointerEvent;
-            if (!pointerEvent) return;
-            const cell = this.getCellFromMouseEvent(pointerEvent);
-            if (!cell) return;
-            this.selection.update(cell.row, cell.col);
-            this.scheduleRender();
-        }, 30); // 30ms interval
-    }
-
-    handleSelectionEnd(e) {
-        if (!this.isSelecting) return;
-        this.isSelecting = false;
-        if (this._autoScrollInterval) {
-            clearInterval(this._autoScrollInterval);
-            this._autoScrollInterval = null;
-        }
-        this._lastPointerEvent = null;
-        // this.renderGrid();  // I think no need of renderGrid here so i commented it out
-    }
-
-
-    // CODE PART-2 FOR CELL RESIZING: RESIZE WHEN DRAGGED AT HEADER OR SIDEBAR IS BELOW
-    // --- Column Resize Handlers ---
+    // THIS EVENT LISTENER WOULD NOT BE SHIFTED INTO TOUCHHANDLER
+    // TODO : Tackle these later, these should get shifted to touchHandler how    
     handleHeaderpointermove(e) {
         const rect = this.headerCanvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -795,59 +731,7 @@ export default class Grid {
         }
         this.headerCanvas.style.cursor = AppString.emptyString;
     }
-
-    handleHeaderResizeStart(e) {
-        // Improved: Allow resizing from both left and right edges of columns (except very first left edge)
-        this.input.style.display = 'none'; // Hide input when resizing header
-        const rect = this.headerCanvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const scrollX = this.container.scrollLeft;
-        let left = 0;
-        for (let j = 0; j < this.columns.length; j++) {
-            const col = this.columns[j];
-            // Check left edge (not for first column)
-            if (j > 0 && Math.abs(x - left) < 5 && y < 25) {
-                this.resizingCol = j - 1;
-                this.startX = e.clientX;
-                this.startWidth = this.columns[this.resizingCol].width;
-                e.preventDefault();
-                return;
-            }
-            // Check right edge (for all columns except last pixel after last col)
-            if (Math.abs(x - (left + col.width)) < 10 && y < 25) {
-                this.resizingCol = j;
-                this.startX = e.clientX;
-                this.startWidth = this.columns[this.resizingCol].width;
-                e.preventDefault();
-                return;
-            }
-            left += col.width;
-            // Only check visible columns for performance (optional)
-            if (left - scrollX > this.headerCanvas.width) break;
-        }
-    }
-
-    handleHeaderResizeMove(e) {
-        // While you are dragging (with the mouse button held down), this updates the width of the column as you move the mouse.
-        if (this.resizingCol !== null) {
-            const dx = e.clientX - this.startX;
-            let newWidth = Math.max(30, this.startWidth + dx); // Minimum width 30px
-            this.columns[this.resizingCol].width = newWidth;
-            this.resizeCanvas();
-        }
-    }
-
-    handleHeaderResizeEnd(e) {
-        // When you release the mouse button, this ends the column resizing process and resets the state.
-        if (this.resizingCol !== null) {
-            this.resizingCol = null;
-            this.startX = null;
-            this.startWidth = null;
-            this.headerCanvas.style.cursor = AppString.emptyString;
-        }
-    }
-
+    
     // --- Row Resize Handlers ---
     handleSidepointermove(e) {
         const rect = this.sideCanvas.getBoundingClientRect();
@@ -871,148 +755,148 @@ export default class Grid {
         this.sideCanvas.style.cursor = AppString.emptyString;
     }
 
-    handleSideResizeStart(e) {
-        // Improved: Allow resizing from both top and bottom edges of rows (except very first top edge)
-        this.input.style.display = 'none'; // Hide input when resizing header
-        const rect = this.sideCanvas.getBoundingClientRect();
-        const y = e.clientY - rect.top;
-        const scrollY = this.container.scrollTop;
-        let top = 0;
-        for (let i = 0; i < this.rows.length; i++) {
-            const row = this.rows[i];
-            // Check top edge (not for first row)
-            if (i > 0 && Math.abs(y - top) < 5) {
-                this.resizingRow = i - 1;
-                this.startY = e.clientY;
-                this.startHeight = this.rows[this.resizingRow].height;
-                e.preventDefault();
-                return;
-            }
-            // Check bottom edge (for all rows except last pixel after last row)
-            if (Math.abs(y - (top + row.height)) < 5) {
-                this.resizingRow = i;
-                this.startY = e.clientY;
-                this.startHeight = this.rows[this.resizingRow].height;
-                e.preventDefault();
-                return;
-            }
-            top += row.height;
-            // Only check visible rows for performance (optional)
-            if (top - scrollY > this.sideCanvas.height) break;
-        }
-    }
+    // handleSideResizeStart(e) {
+    //     // Improved: Allow resizing from both top and bottom edges of rows (except very first top edge)
+    //     this.input.style.display = 'none'; // Hide input when resizing header
+    //     const rect = this.sideCanvas.getBoundingClientRect();
+    //     const y = e.clientY - rect.top;
+    //     const scrollY = this.container.scrollTop;
+    //     let top = 0;
+    //     for (let i = 0; i < this.rows.length; i++) {
+    //         const row = this.rows[i];
+    //         // Check top edge (not for first row)
+    //         if (i > 0 && Math.abs(y - top) < 5) {
+    //             this.resizingRow = i - 1;
+    //             this.startY = e.clientY;
+    //             this.startHeight = this.rows[this.resizingRow].height;
+    //             e.preventDefault();
+    //             return;
+    //         }
+    //         // Check bottom edge (for all rows except last pixel after last row)
+    //         if (Math.abs(y - (top + row.height)) < 5) {
+    //             this.resizingRow = i;
+    //             this.startY = e.clientY;
+    //             this.startHeight = this.rows[this.resizingRow].height;
+    //             e.preventDefault();
+    //             return;
+    //         }
+    //         top += row.height;
+    //         // Only check visible rows for performance (optional)
+    //         if (top - scrollY > this.sideCanvas.height) break;
+    //     }
+    // }
 
-    handleSideResizeMove(e) {
-        if (this.resizingRow !== null) {
-            const dy = e.clientY - this.startY;
-            let newHeight = Math.max(15, this.startHeight + dy); // Minimum height 15px
-            this.rows[this.resizingRow].height = newHeight;
-            this.resizeCanvas();
-        }
-    }
+    // handleSideResizeMove(e) {
+    //     if (this.resizingRow !== null) {
+    //         const dy = e.clientY - this.startY;
+    //         let newHeight = Math.max(15, this.startHeight + dy); // Minimum height 15px
+    //         this.rows[this.resizingRow].height = newHeight;
+    //         this.resizeCanvas();
+    //     }
+    // }
 
-    handleSideResizeEnd(e) {
-        if (this.resizingRow !== null) {
-            this.resizingRow = null;
-            this.startY = null;
-            this.startHeight = null;
-            this.sideCanvas.style.cursor = AppString.emptyString;
-        }
-    }
+    // handleSideResizeEnd(e) {
+    //     if (this.resizingRow !== null) {
+    //         this.resizingRow = null;
+    //         this.startY = null;
+    //         this.startHeight = null;
+    //         this.sideCanvas.style.cursor = AppString.emptyString;
+    //     }
+    // }
 
 
     // multiple row-col selection
-    handleHeaderSelectStart(e) {
-        const rect = this.headerCanvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const scrollX = this.container.scrollLeft;
-        let colIdx = 0, sumX = 0;
-        for (const col of this.columns) {
-            if (sumX + col.width > x + scrollX) break;
-            sumX += col.width;
-            colIdx++;
-        }
-        if (colIdx >= this.totalCols) return;
-        this.isHeaderSelecting = true;
-        this.headerSelectStartCol = colIdx;
-        this.headerSelectEndCol = colIdx;
-        this.selection.start(0, colIdx);
-        this.selection.update(this.totalRows - 1, colIdx);
-        this.scheduleRender();
-        //
-        // REPAINT THE HEADER CELLS HERE TO DARK GREEN
-    }
+    // handleHeaderSelectStart(e) {
+    //     const rect = this.headerCanvas.getBoundingClientRect();
+    //     const x = e.clientX - rect.left;
+    //     const scrollX = this.container.scrollLeft;
+    //     let colIdx = 0, sumX = 0;
+    //     for (const col of this.columns) {
+    //         if (sumX + col.width > x + scrollX) break;
+    //         sumX += col.width;
+    //         colIdx++;
+    //     }
+    //     if (colIdx >= this.totalCols) return;
+    //     this.isHeaderSelecting = true;
+    //     this.headerSelectStartCol = colIdx;
+    //     this.headerSelectEndCol = colIdx;
+    //     this.selection.start(0, colIdx);
+    //     this.selection.update(this.totalRows - 1, colIdx);
+    //     this.scheduleRender();
+    //     //
+    //     // REPAINT THE HEADER CELLS HERE TO DARK GREEN
+    // }
 
-    handleHeaderSelectMove(e) {
-        if (!this.isHeaderSelecting) return;
-        const rect = this.headerCanvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const scrollX = this.container.scrollLeft;
-        let colIdx = 0, sumX = 0;
-        for (const col of this.columns) {
-            if (sumX + col.width > x + scrollX) break;
-            sumX += col.width;
-            colIdx++;
-        }
-        if (colIdx >= this.totalCols) colIdx = this.totalCols - 1;
-        this.headerSelectEndCol = colIdx;
-        const minCol = Math.min(this.headerSelectStartCol, this.headerSelectEndCol);
-        const maxCol = Math.max(this.headerSelectStartCol, this.headerSelectEndCol);
-        this.selection.start(0, minCol);
-        this.selection.update(this.totalRows - 1, maxCol);
-        this.scheduleRender();
-    }
+    // handleHeaderSelectMove(e) {
+    //     if (!this.isHeaderSelecting) return;
+    //     const rect = this.headerCanvas.getBoundingClientRect();
+    //     const x = e.clientX - rect.left;
+    //     const scrollX = this.container.scrollLeft;
+    //     let colIdx = 0, sumX = 0;
+    //     for (const col of this.columns) {
+    //         if (sumX + col.width > x + scrollX) break;
+    //         sumX += col.width;
+    //         colIdx++;
+    //     }
+    //     if (colIdx >= this.totalCols) colIdx = this.totalCols - 1;
+    //     this.headerSelectEndCol = colIdx;
+    //     const minCol = Math.min(this.headerSelectStartCol, this.headerSelectEndCol);
+    //     const maxCol = Math.max(this.headerSelectStartCol, this.headerSelectEndCol);
+    //     this.selection.start(0, minCol);
+    //     this.selection.update(this.totalRows - 1, maxCol);
+    //     this.scheduleRender();
+    // }
 
-    handleHeaderSelectEnd(e) {
-        if (this.isHeaderSelecting) {
-            this.isHeaderSelecting = false;
-        }
-    }
-    // for multi col select dragging at sidebar
-    handleSideSelectStart(e) {
-        const rect = this.sideCanvas.getBoundingClientRect();
-        const y = e.clientY - rect.top;
-        const scrollY = this.container.scrollTop;
-        let rowIdx = 0, sumY = 0;
-        for (const row of this.rows) {
-            if (sumY + row.height > y + scrollY) break;
-            sumY += row.height;
-            rowIdx++;
-        }
-        if (rowIdx >= this.totalRows) return;
-        this.isSideSelecting = true;
-        this.sideSelectStartRow = rowIdx;
-        this.sideSelectEndRow = rowIdx;
-        this.selection.start(rowIdx, 0);
-        this.selection.update(rowIdx, this.totalCols - 1);
-        this.scheduleRender();
-    }
+    // handleHeaderSelectEnd(e) {
+    //     if (this.isHeaderSelecting) {
+    //         this.isHeaderSelecting = false;
+    //     }
+    // }
+    // // for multi col select dragging at sidebar
+    // handleSideSelectStart(e) {
+    //     const rect = this.sideCanvas.getBoundingClientRect();
+    //     const y = e.clientY - rect.top;
+    //     const scrollY = this.container.scrollTop;
+    //     let rowIdx = 0, sumY = 0;
+    //     for (const row of this.rows) {
+    //         if (sumY + row.height > y + scrollY) break;
+    //         sumY += row.height;
+    //         rowIdx++;
+    //     }
+    //     if (rowIdx >= this.totalRows) return;
+    //     this.isSideSelecting = true;
+    //     this.sideSelectStartRow = rowIdx;
+    //     this.sideSelectEndRow = rowIdx;
+    //     this.selection.start(rowIdx, 0);
+    //     this.selection.update(rowIdx, this.totalCols - 1);
+    //     this.scheduleRender();
+    // }
 
-    handleSideSelectMove(e) {
-        if (!this.isSideSelecting) return;
-        const rect = this.sideCanvas.getBoundingClientRect();
-        const y = e.clientY - rect.top;
-        const scrollY = this.container.scrollTop;
-        let rowIdx = 0, sumY = 0;
-        for (const row of this.rows) {
-            if (sumY + row.height > y + scrollY) break;
-            sumY += row.height;
-            rowIdx++;
-        }
-        if (rowIdx >= this.totalRows) rowIdx = this.totalRows - 1;
-        this.sideSelectEndRow = rowIdx;
-        const minRow = Math.min(this.sideSelectStartRow, this.sideSelectEndRow);
-        const maxRow = Math.max(this.sideSelectStartRow, this.sideSelectEndRow);
-        this.selection.start(minRow, 0);
-        this.selection.update(maxRow, this.totalCols - 1);
-        this.scheduleRender();
-    }
+    // handleSideSelectMove(e) {
+    //     if (!this.isSideSelecting) return;
+    //     const rect = this.sideCanvas.getBoundingClientRect();
+    //     const y = e.clientY - rect.top;
+    //     const scrollY = this.container.scrollTop;
+    //     let rowIdx = 0, sumY = 0;
+    //     for (const row of this.rows) {
+    //         if (sumY + row.height > y + scrollY) break;
+    //         sumY += row.height;
+    //         rowIdx++;
+    //     }
+    //     if (rowIdx >= this.totalRows) rowIdx = this.totalRows - 1;
+    //     this.sideSelectEndRow = rowIdx;
+    //     const minRow = Math.min(this.sideSelectStartRow, this.sideSelectEndRow);
+    //     const maxRow = Math.max(this.sideSelectStartRow, this.sideSelectEndRow);
+    //     this.selection.start(minRow, 0);
+    //     this.selection.update(maxRow, this.totalCols - 1);
+    //     this.scheduleRender();
+    // }
 
-    handleSideSelectEnd(e) {
-        if (this.isSideSelecting) {
-            this.isSideSelecting = false;
-        }
-    }
+    // handleSideSelectEnd(e) {
+    //     if (this.isSideSelecting) {
+    //         this.isSideSelecting = false;
+    //     }
+    // }
 
 }
 

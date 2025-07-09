@@ -20,11 +20,12 @@ body {
     margin-left: 100px; left this much margin for the headers of excel */
     overflow: scroll;
     /*container has very big size spacer so it would scroll*/
-    cursor: cell;
-
+    touch-action: none;;
+    
 }
 
 .myCanvas {
+    cursor: cell;
     background-color: #FFFFFF;
     position: fixed;
     top: 75px;
