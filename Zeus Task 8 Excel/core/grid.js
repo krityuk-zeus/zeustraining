@@ -340,29 +340,44 @@ export default class Grid {
         }
         // const endRow = Math.min(startRow + 40, this.totalRows);
 
-        this.renderCells(startCol, endCol, startRow, endRow, sumX, sumY, scrollX, scrollY);
-        this.renderHeader(startCol, endCol, sumX, scrollX);
-        this.renderSider(startRow, endRow, sumY, scrollY);
+        // Save to instance
+        /**
+         * 
+         * @param {number} startCol - The starting column index for rendering cells.
+         * @param {number} endCol - The ending column index for rendering cells.
+         * @param {number} startRow - The starting row index for rendering cells.
+         * @param {number} endRow  - The ending row index for rendering cells.
+         * @param {number} sumX - The cumulative width of columns up to the starting column.
+         * @param {number} sumY - The cumulative height of rows up to the starting row.
+         * @param {number} scrollX - The horizontal scroll position of the grid.
+         * @param {number} scrollY - The vertical scroll position of the grid.
+         */
+        this.startCol = startCol;
+        this.endCol = endCol;
+        this.sumX = sumX;
+        this.startRow = startRow;
+        this.endRow = endRow;
+        this.sumY = sumY;
+        this.scrollX = scrollX;
+        this.scrollY = scrollY;
+
+        this.renderCells();
+        this.renderHeader();
+        this.renderSider();
 
     }
 
+
     /**
-     * 
-     * @param {number} startCol - The starting column index for rendering cells.
-     * @param {number} endCol - The ending column index for rendering cells.
-     * @param {number} startRow - The starting row index for rendering cells.
-     * @param {number} endRow  - The ending row index for rendering cells.
-     * @param {number} sumX - The cumulative width of columns up to the starting column.
-     * @param {number} sumY - The cumulative height of rows up to the starting row.
-     * @param {number} scrollX - The horizontal scroll position of the grid.
-     * @param {number} scrollY - The vertical scroll position of the grid.
+     * Renders the cells in the grid based on the current viewport.
+     * Also painting the selected cells with a different background color.
      */
-    renderCells(startCol, endCol, startRow, endRow, sumX, sumY, scrollX, scrollY) {
+    renderCells() {
         // Draw Cells
-        let y = sumY - scrollY;
-        for (let i = startRow; i < endRow; i++) {
-            let x = sumX - scrollX;
-            for (let j = startCol; j < endCol; j++) {
+        let y = this.sumY - this.scrollY;
+        for (let i = this.startRow; i < this.endRow; i++) {
+            let x = this.sumX - this.scrollX;
+            for (let j = this.startCol; j < this.endCol; j++) {
                 const colKey = "col" + j;
                 if (!this.hashMap[i]) this.hashMap[i] = {};
                 if (this.hashMap[i][colKey] === undefined) { // Only initialize if not already set
@@ -392,8 +407,8 @@ export default class Grid {
                 }
 
                 const cell = new Cell(this.rows[i], this.columns[j]);
-                cell.drawCell(this.ctx, x, y, this.columns[j].width, this.rows[i].height, cellData
-                ); // x,y = top-left point of cell taki cell draw ho paye
+                cell.drawCell(this.ctx, x, y, this.columns[j].width, this.rows[i].height, cellData);
+                // x,y = top-left point of cell taki cell draw ho paye
 
                 x += this.columns[j].width;
             }
@@ -412,19 +427,19 @@ export default class Grid {
             // Clamp selection to visible viewport
             // Clamping reqd because canvas is fixed and does not scroll without clamping,
             // the green border of selected canvas cell were not going outside the screen when scrolled, they remain like fixed at screen
-            const visibleMinRow = Math.max(minRow, startRow);
-            const visibleMaxRow = Math.min(maxRow, endRow - 1);
-            const visibleMinCol = Math.max(minCol, startCol);
-            const visibleMaxCol = Math.min(maxCol, endCol - 1);
+            const visibleMinRow = Math.max(minRow, this.startRow);
+            const visibleMaxRow = Math.min(maxRow, this.endRow - 1);
+            const visibleMinCol = Math.max(minCol, this.startCol);
+            const visibleMaxCol = Math.min(maxCol, this.endCol - 1);
 
             // Only draw if selection is visible in current viewport
-            if (visibleMinRow < endRow && visibleMaxRow >= startRow && visibleMinCol < endCol && visibleMaxCol >= startCol) {
+            if (visibleMinRow < this.endRow && visibleMaxRow >= this.startRow && visibleMinCol < this.endCol && visibleMaxCol >= this.startCol) {
                 // Calculate top-left and bottom-right in canvas coordinates
-                let borderX = sumX - scrollX;
-                for (let j = startCol; j < visibleMinCol; j++)
+                let borderX = this.sumX - this.scrollX;
+                for (let j = this.startCol; j < visibleMinCol; j++)
                     borderX += this.columns[j].width;
-                let borderY = sumY - scrollY;
-                for (let i = startRow; i < visibleMinRow; i++)
+                let borderY = this.sumY - this.scrollY;
+                for (let i = this.startRow; i < visibleMinRow; i++)
                     borderY += this.rows[i].height;
                 let borderW = 0;
                 for (let j = visibleMinCol; j <= visibleMaxCol; j++)
@@ -457,7 +472,7 @@ export default class Grid {
      * It calculates the visible columns based on the current scroll position and draws the headers accordingly.
      * It also handles column selection's highlighting of selected columns.
      */
-    renderHeader(startCol, endCol, sumX, scrollX) {
+    renderHeader() {
         // const scrollX = this.container.scrollLeft;
         this.headerCtx.clearRect(0.5, 0.5, this.headerCanvas.width, this.headerCanvas.height);
         this.headerCtx.font = '13px Arial';
@@ -467,8 +482,8 @@ export default class Grid {
         /**
          * x is for drawRect function to draw the header cells, at the correct horizontal position
          */
-        let x = sumX - scrollX;
-        for (let j = startCol; j < endCol; j++) {
+        let x = this.sumX - this.scrollX;
+        for (let j = this.startCol; j < this.endCol; j++) {
             const colLabel = this.colToLetter(j);
             const colWidth = this.columns[j].width;
 
@@ -554,7 +569,7 @@ export default class Grid {
      * @param {number} sumY - The cumulative height of rows up to the starting row.
      * @param {number} scrollY - The vertical scroll position of the grid.
      */
-    renderSider(startRow, endRow, sumY, scrollY) {
+    renderSider() {
         // const scrollY = this.container.scrollTop;
         this.sideCtx.clearRect(0.5, 0.5, this.sideCanvas.width, this.sideCanvas.height);
         this.sideCtx.font = '13px Arial';
@@ -565,8 +580,8 @@ export default class Grid {
         /**
          * y is for drawRect function to draw the side header cells, at the correct vertical position
          */
-        let y = sumY - scrollY;
-        for (let i = startRow; i < endRow; i++) {
+        let y = this.sumY - this.scrollY;
+        for (let i = this.startRow; i < this.endRow; i++) {
             const rowLabel = (i + 1).toString();
             const rowHeight = this.rows[i].height;
 
@@ -781,22 +796,15 @@ export default class Grid {
     handleHeaderpointermove(e) {
         const rect = this.headerCanvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
         const scrollX = this.container.scrollLeft;
-        let left = 0;
-        for (let j = 0; j < this.columns.length; j++) {
+        let left = this.sumX - scrollX;
+        for (let j = this.startCol; j < this.endCol; j++) {
             const col = this.columns[j];
-            // Check both left and right edges of each column
-            if (
-                (Math.abs(x - left) < 10 || Math.abs(x - (left + col.width)) < 5) &&
-                y < 25 // header height
-            ) {
+            if (j > 0 && Math.abs(x - left) < 5 || Math.abs(x - (left + col.width)) < 5) {
                 this.headerCanvas.style.cursor = 'col-resize';
                 return;
             }
             left += col.width;
-            // Only check visible columns for performance (optional)
-            if (left - scrollX > this.headerCanvas.width) break;
         }
         this.headerCanvas.style.cursor = AppString.emptyString;
     }
@@ -811,8 +819,8 @@ export default class Grid {
         const rect = this.sideCanvas.getBoundingClientRect();
         const y = e.clientY - rect.top;
         const scrollY = this.container.scrollTop;
-        let top = 0;
-        for (let i = 0; i < this.rows.length; i++) {
+        let top = this.sumY - scrollY;
+        for (let i = this.startRow; i < this.endRow; i++) {
             const row = this.rows[i];
             // Check both top and bottom edges of each row
             if (
@@ -823,8 +831,6 @@ export default class Grid {
                 return;
             }
             top += row.height;
-            // Only check visible rows for performance (optional)
-            if (top - scrollY > this.sideCanvas.height) break;
         }
         this.sideCanvas.style.cursor = AppString.emptyString;
     }
