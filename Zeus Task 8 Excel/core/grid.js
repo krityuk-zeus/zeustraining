@@ -212,7 +212,7 @@ export default class Grid {
          * 
          */
         this.input = document.createElement('input');
-        this.input.id = 'cell-editor';
+        // this.input.id = 'cell-editor';
         this.container.appendChild(this.input);
         this.input.className = 'cell-editor';
 
@@ -220,7 +220,7 @@ export default class Grid {
         /**
          * * Adds event listeners to the canvas and input elements for handling cell editing.
          */
-        this.canvas.addEventListener('pointerdown', (e) => this.handleCellEdit(e)); // adds input tag
+        this.canvas.addEventListener('dblclick', (e) => this.handleCellEdit(e)); // adds input tag
         // this.canvas.addEventListener('dblclick', (e) => this.handleCellEdit(e, true));
 
 
@@ -256,7 +256,7 @@ export default class Grid {
         // Remove event listeners
         // Clear timeouts
         // Nullify references
-        this.container.innerHTML = '';
+        this.container.innerHTML = AppString.EmptyString; // Clear the container
     }
 
 
@@ -304,9 +304,6 @@ export default class Grid {
         const scrollX = this.container.scrollLeft; // left towards right kitna scroll kra ha, starting me ye zero rhega
         const scrollY = this.container.scrollTop;  // top se kitna scroll kra h neeche ke taraf / simply means top-left pixel of scroll-container
 
-        this.ctx.clearRect(0.5, 0.5, this.canvas.width, this.canvas.height); // sbse pehle pura visible page part mita diya
-        this.ctx.font = "13px Arial";
-
         let startCol = 0, sumX = 0;
         for (const col of this.columns) {
             if (sumX + col.width > scrollX) break; // const startCol = Math.floor(scrollX / 100);
@@ -320,7 +317,7 @@ export default class Grid {
         for (let j = startCol; j < this.totalCols; j++) {
             xSum += this.columns[j].width;
             if (xSum > visibleWidth) {
-                endCol = j + 1; // include the partially visible column
+                endCol = j + 1; // endCol is enclusive in my whole code, so j+1 is used
                 break;
             }
         }
@@ -355,7 +352,7 @@ export default class Grid {
         /**
          * 
          * @param {number} startCol - The starting column index for rendering cells.
-         * @param {number} endCol - The ending column index for rendering cells.
+         * @param {number} endCol - The ending column index for rendering cells. : endCol and endRow are exclusive in my grid class
          * @param {number} startRow - The starting row index for rendering cells.
          * @param {number} endRow  - The ending row index for rendering cells.
          * @param {number} sumX - The cumulative width of columns up to the starting column.
@@ -385,11 +382,14 @@ export default class Grid {
      */
     renderCells() {
         // Draw Cells
+        this.ctx.clearRect(0.5, 0.5, this.canvas.width, this.canvas.height); // sbse pehle pura visible page part mita diya
+        this.ctx.font = "13px Arial";
+
         let y = this.sumY - this.scrollY;
         for (let i = this.startRow; i < this.endRow; i++) {
             let x = this.sumX - this.scrollX;
             for (let j = this.startCol; j < this.endCol; j++) {
-                const colKey = "col" + j;
+                const colKey = AppString.Col + j;
                 if (!this.hashMap[i]) this.hashMap[i] = {};
                 if (this.hashMap[i][colKey] === undefined) { // Only initialize if not already set
                     if (i > 0 && this.data[i - 1] && Object.values(this.data[i - 1])[j] !== undefined) {
@@ -562,7 +562,7 @@ export default class Grid {
      * This function is used only in renderHeader() function to convert column index to letter
      */
     colToLetter(index) {
-        let str = AppString.emptyString;
+        let str = AppString.EmptyString;
         do {
             str = String.fromCharCode(65 + (index % 26)) + str;
             index = Math.floor(index / 26) - 1;
@@ -664,71 +664,57 @@ export default class Grid {
      * @returns 
      */
     handleCellEdit(e) {
-        // this function injects input tag at first selected cell
-        // also it re-renders 
-        this.saveEdit(); // ensures that any previous cell's edit is saved before starting a new edit, single click me data save nai ho rha tha.
-        const rect = this.canvas.getBoundingClientRect();
-        const headerHeight = 25; // for 25 height of top-header having A,B,C,etc written
-        const sideWidth = 50;// for 50 width of side-header
-        const exelHeaderHeight = 50; // excel ka header
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;// coordinates of where user clicked wrt top-left of canvas tag
+        this.saveEdit();
 
-        const scrollX = this.container.scrollLeft;
-        const scrollY = this.container.scrollTop;
+        // Use selection anchor for cell indices
+        const colIdx = this.selection.anchor.col;
+        const rowIdx = this.selection.anchor.row;
 
-        // Find col
-        let colIdx = 0, sumX = 0;
-        for (const col of this.columns) {
-            if (sumX + col.width > x + scrollX) break;
-            sumX += col.width;
-            colIdx++;
-        }
-        if (colIdx >= this.totalCols) return;
-
-        // Find row
-        let rowIdx = 0, sumY = 0;
-        for (const row of this.rows) {
-            if (sumY + row.height > y + scrollY) break;
-            sumY += row.height;
-            rowIdx++;
-        }
-        if (rowIdx >= this.totalRows) return;
+        if (colIdx == null || rowIdx == null) return;
 
         // Calculate cell's top-left in canvas
-        const cellX = sumX - scrollX;
-        const cellY = sumY - scrollY;
+        let sumX = this.sumX - this.scrollX;
+        for (let j = this.startCol; j < colIdx; j++) {
+            sumX += this.columns[j].width;
+        }
+        let sumY = this.sumY - this.scrollY;
+        for (let i = this.startRow; i < rowIdx; i++) {
+            sumY += this.rows[i].height;
+        }
+
+        const cellX = sumX;
+        const cellY = sumY;
 
         // Position input
+        const headerHeight = 25;
+        const sideWidth = 50;
+        const exelHeaderHeight = 50;
         this.input.style.left = (cellX + sideWidth) + 'px';
         this.input.style.top = (cellY + headerHeight + exelHeaderHeight + 1) + 'px';
-        this.input.style.width = this.columns[colIdx].width - 3 + 'px'; // Here I did -3 because input tag was hiding the small green square associated at bottom-down, so input tag ki width kam kr di, -3 kr di
+        this.input.style.width = this.columns[colIdx].width - 3 + 'px';
         this.input.style.height = this.rows[rowIdx].height - 1 + 'px';
         this.input.style.display = 'block';
 
         // Set value
         const keys = Object.keys(this.data[0] || {});
         let key = keys[colIdx];
-
-
-        const colKey = "col" + colIdx;
+        const colKey = AppString.Col + colIdx;
         let value = AppString.emptyString;
         if (this.hashMap[rowIdx] && this.hashMap[rowIdx][colKey] !== undefined) {
             value = this.hashMap[rowIdx][colKey];
         }
-        this.input.value = value; // loads the associated cell value into the input tag
-
+        this.input.value = value;
+        this.input.focus();
 
         // Store editing cell
         this.editingCell = { rowIdx, colIdx, key };
-        this.scheduleRender(); // highlight the corresponding cell from header and sider
-
+        this.scheduleRender();
     }
 
     saveEdit() {
         if (!this.editingCell) return;
         const { rowIdx, colIdx } = this.editingCell;
-        const colKey = "col" + colIdx;
+        const colKey = AppString.Col + colIdx;
         if (!this.hashMap[rowIdx]) this.hashMap[rowIdx] = {};
         this.hashMap[rowIdx][colKey] = this.input.value;
         this.input.style.display = 'none';
@@ -851,9 +837,3 @@ export default class Grid {
 
 
 }
-
-
-
-
-// Ek or listener bna ki scroll hote hi "input ka data us cell me save and input ka display none "
-// because input ko fixed hi rkhne wale hai hm
