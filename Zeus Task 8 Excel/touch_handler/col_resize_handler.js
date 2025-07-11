@@ -43,9 +43,8 @@ export default class ColResizeHandler {
         if (e.target !== this.grid.headerCanvas) return false;
         const rect = this.grid.headerCanvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
-        const scrollX = this.grid.container.scrollLeft;
-        let left = 0;
-        for (let j = 0; j < this.grid.columns.length; j++) {
+        let left = this.grid.sumX - this.grid.scrollX;
+        for (let j = this.grid.startCol; j < this.grid.endCol; j++) {
             const col = this.grid.columns[j];
             // Check left edge (not for first column)
             if (j > 0 && Math.abs(x - left) < 5) {
@@ -58,7 +57,7 @@ export default class ColResizeHandler {
                 return true;
             }
             left += col.width;
-            if (left - scrollX > this.grid.headerCanvas.width) break;
+            // if (left - this.grid.scrollX > this.grid.headerCanvas.width) break;
         }
         return false;
     }
@@ -79,6 +78,7 @@ export default class ColResizeHandler {
      * @param {PointerEvent} e - The pointer move event.
      */
     onPointerMove(e) {
+        document.body.style.cursor = 'col-resize'; // Change cursor to indicate resizing
         if (this.resizingCol !== null) {
             const dx = e.clientX - this.startX;
             let newWidth = Math.max(30, this.startWidth + dx); // Minimum width 30px

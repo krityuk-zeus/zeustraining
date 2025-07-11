@@ -39,13 +39,14 @@ export default class RowResizeHandler {
      * @param {PointerEvent} e - The pointer event.
      * @returns {boolean} True if near a row edge, false otherwise.
      */
+
+    // ** TODO   BELOW HAS SOME PROBLEM,  SCROLL DOWN KRO THEN ROW-RESIZE NAHI HORHA
     hitTest(e) {
         if (e.target !== this.grid.sideCanvas) return false;
         const rect = this.grid.sideCanvas.getBoundingClientRect();
         const y = e.clientY - rect.top;
-        const scrollY = this.grid.container.scrollTop;
-        let top = 0;
-        for (let i = 0; i < this.grid.rows.length; i++) {
+        let top = this.grid.sumY - this.grid.scrollY;
+        for (let i = this.grid.startRow; i < this.grid.endRow; i++) {
             const row = this.grid.rows[i];
             // Check top edge (not for first row)
             if (i > 0 && Math.abs(y - top) < 5) {
@@ -58,7 +59,7 @@ export default class RowResizeHandler {
                 return true;
             }
             top += row.height;
-            if (top - scrollY > this.grid.sideCanvas.height) break;
+            // if (top - this.grid.scrollY > this.grid.sideCanvas.height) break;
         }
         return false;
     }

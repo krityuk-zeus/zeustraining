@@ -29,7 +29,6 @@ export default class CellSelectionHandler {
     }
 
     onPointerMove(e) {
-        if (!this.grid.isSelecting) return;
         const cell = this.grid.getCellFromMouseEvent(e);
         if (!cell) return;
         this.grid.selection.update(cell.row, cell.col);

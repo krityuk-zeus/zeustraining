@@ -163,7 +163,7 @@ export default class Grid {
         spacer.style.height = virtualHeight + 25 + "px";
 
         /**
-         * * @type {HTMLDivElement} container - The main container element for the grid.
+         * @property {HTMLDivElement} container - The main container element for the grid.
          * @property {HTMLCanvasElement} headerCanvas - The canvas element for rendering the column headers.
          * @property {HTMLCanvasElement} sideCanvas - The canvas element for rendering the row headers.
          * @property {HTMLCanvasElement} canvas - The main canvas element for rendering the grid.
@@ -796,8 +796,7 @@ export default class Grid {
     handleHeaderpointermove(e) {
         const rect = this.headerCanvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
-        const scrollX = this.container.scrollLeft;
-        let left = this.sumX - scrollX;
+        let left = this.sumX - this.scrollX;
         for (let j = this.startCol; j < this.endCol; j++) {
             const col = this.columns[j];
             if (j > 0 && Math.abs(x - left) < 5 || Math.abs(x - (left + col.width)) < 5) {
@@ -818,8 +817,7 @@ export default class Grid {
     handleSidepointermove(e) {
         const rect = this.sideCanvas.getBoundingClientRect();
         const y = e.clientY - rect.top;
-        const scrollY = this.container.scrollTop;
-        let top = this.sumY - scrollY;
+        let top = this.sumY - this.scrollY;
         for (let i = this.startRow; i < this.endRow; i++) {
             const row = this.rows[i];
             // Check both top and bottom edges of each row

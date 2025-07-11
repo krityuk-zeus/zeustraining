@@ -42,12 +42,12 @@ export default class ColSelectionHandler {
         if (e.target !== this.grid.headerCanvas) return false;
         const rect = this.grid.headerCanvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
-        const scrollX = this.grid.container.scrollLeft;
-        let left = 0;
-        for (let j = 0; j < this.grid.columns.length; j++) {
+        // Use cached visible columns for faster lookup
+        let left = this.grid.sumX - this.grid.container.scrollLeft;
+        for (let j = this.grid.startCol; j < this.grid.endCol; j++) {
             const col = this.grid.columns[j];
             // Check left edge (not for first column)
-            if (j > 0 && Math.abs(x - left) < 5 ) {
+            if (j > this.grid.startCol && Math.abs(x - left) < 5) {
                 this.resizingCol = j - 1;
                 return false;
             }
@@ -57,7 +57,6 @@ export default class ColSelectionHandler {
                 return false;
             }
             left += col.width;
-            if (left - scrollX > this.grid.headerCanvas.width) break;
         }
         return true;
     }
@@ -72,14 +71,21 @@ export default class ColSelectionHandler {
         const rect = this.grid.headerCanvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const scrollX = this.grid.container.scrollLeft;
-        let colIdx = 0, sumX = 0;
-        for (const col of this.grid.columns) {
-            if (sumX + col.width > x + scrollX) break;
-            sumX += col.width;
-            colIdx++;
+
+        // Use cached visible columns for faster lookup
+        // left is the starting X position of the first visible column. (sumX-scrollX)
+        let left = this.grid.sumX - scrollX;
+        let colIdx = this.grid.startCol;
+        for (let j = this.grid.startCol; j < this.grid.endCol; j++) {
+            const col = this.grid.columns[j];
+            if (x < left + col.width) {
+                colIdx = j;
+                break;
+            }
+            left += col.width;
         }
-        if (colIdx >= this.grid.totalCols) return;
-        this.grid.isHeaderSelecting = true;
+
+        // this.grid.isHeaderSelecting = true;
         this.grid.headerSelectStartCol = colIdx;
         this.grid.headerSelectEndCol = colIdx;
         this.grid.selection.start(0, colIdx);
@@ -92,17 +98,24 @@ export default class ColSelectionHandler {
      * @param {PointerEvent} e - The pointer move event.
      */
     onPointerMove(e) {
-        if (!this.grid.isHeaderSelecting) return;
+        // if (!this.grid.isHeaderSelecting) return;
         const rect = this.grid.headerCanvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const scrollX = this.grid.container.scrollLeft;
-        let colIdx = 0, sumX = 0;
-        for (const col of this.grid.columns) {
-            if (sumX + col.width > x + scrollX) break;
-            sumX += col.width;
-            colIdx++;
+
+        // Use cached visible columns for faster lookup
+        let left = this.grid.sumX - scrollX;
+        let colIdx = this.grid.startCol;
+        for (let j = this.grid.startCol; j < this.grid.endCol; j++) {
+            const col = this.grid.columns[j];
+            if (x < left + col.width) {
+                colIdx = j;
+                break;
+            }
+            left += col.width;
         }
         if (colIdx >= this.grid.totalCols) colIdx = this.grid.totalCols - 1;
+
         this.grid.headerSelectEndCol = colIdx;
         const minCol = Math.min(this.grid.headerSelectStartCol, this.grid.headerSelectEndCol);
         const maxCol = Math.max(this.grid.headerSelectStartCol, this.grid.headerSelectEndCol);
@@ -115,8 +128,8 @@ export default class ColSelectionHandler {
      * Handles the end of a column selection operation.
      */
     onPointerUp() {
-        if (this.grid.isHeaderSelecting) {
-            this.grid.isHeaderSelecting = false;
-        }
+        // if (this.grid.isHeaderSelecting) {
+        //     this.grid.isHeaderSelecting = false;
+        // }
     }
 }

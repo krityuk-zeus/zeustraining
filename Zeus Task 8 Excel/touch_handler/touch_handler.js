@@ -8,6 +8,10 @@
  * @property {function(): void} onPointerUp - Handles pointer up event.
  */
 
+/**
+ * TouchHandler class manages pointer events of grid class and delegates them to registered handlers.
+ * It allows for modular handling of different pointer interactions such as cell selection, column resizing, etc.
+ */
 export default class TouchHandler {
     /**
      * Initializes the TouchHandler.
