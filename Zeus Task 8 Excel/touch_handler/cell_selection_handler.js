@@ -6,10 +6,9 @@ export default class CellSelectionHandler {
      */
     constructor(grid) {
         this.grid = grid;
-
-       // for auto-scroll during selection
-       this._lastPointerEvent = null;
-       this._autoScrollInterval = null;
+        // for auto-scroll during selection
+        this._lastPointerEvent = null;
+        this._autoScrollInterval = null;
     }
 
     hitTest(e) {
@@ -49,10 +48,10 @@ export default class CellSelectionHandler {
         this._lastPointerEvent = null;
     }
 
-        /**
-    * Handles Excel-like auto-scrolling, which happens during multi cell selection, when pointer is near the edge during selection.
-    * @param {PointerEvent} e
-    */
+    /**
+* Handles Excel-like auto-scrolling, which happens during multi cell selection, when pointer is near the edge during selection.
+* @param {PointerEvent} e
+*/
     setupAutoScroll(e) {
         if (this._autoScrollInterval) {
             clearInterval(this._autoScrollInterval);

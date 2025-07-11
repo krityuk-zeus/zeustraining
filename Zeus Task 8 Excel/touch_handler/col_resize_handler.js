@@ -67,8 +67,8 @@ export default class ColResizeHandler {
      * @param {PointerEvent} e - The pointer down event.
      */
     onPointerDown(e) {
-        // document.body.style.cursor = 'col-resize'; // Change cursor to indicate resizing
-        this.grid.headerCanvas.style.cursor = 'ew-resize';
+        this.grid.isColResizing = true;
+        this.setResizeCursor();
         this.startX = e.clientX;
         this.startWidth = this.grid.columns[this.resizingCol].width;
         e.preventDefault();
@@ -77,7 +77,7 @@ export default class ColResizeHandler {
     /**
      * Handles pointer movement during column resizing.
      * @param {PointerEvent} e - The pointer move event.
-     */
+    */
     onPointerMove(e) {
         if (this.resizingCol === null) return;
         const dx = e.clientX - this.startX;
@@ -85,15 +85,33 @@ export default class ColResizeHandler {
         this.grid.columns[this.resizingCol].width = newWidth;
         this.grid.resizeCanvas();
     }
-    
+
     /**
      * Handles the end of a column resize operation.
     */
-   onPointerUp() {
+    onPointerUp() {
         if (this.resizingCol === null) return;
+        this.resetResizeCursor();
+        this.grid.isColResizing = null;
         this.resizingCol = null;
         this.startX = null;
         this.startWidth = null;
+        document.body.style.cursor = '';
         this.grid.headerCanvas.style.cursor = AppString.emptyString;
+        this.grid.canvas.style.cursor = AppString.emptyString;
+        this.grid.sideCanvas.style.cursor = AppString.emptyString;
+    }
+
+    setResizeCursor() {
+        document.body.style.cursor = 'ew-resize';
+        this.grid.headerCanvas.style.cursor = 'ew-resize';
+        this.grid.canvas.style.cursor = 'ew-resize';
+        this.grid.sideCanvas.style.cursor = 'ew-resize';
+    }
+    resetResizeCursor() {
+        document.body.style.cursor = '';
+        this.grid.headerCanvas.style.cursor = AppString.emptyString;
+        this.grid.canvas.style.cursor = AppString.emptyString;
+        this.grid.sideCanvas.style.cursor = AppString.emptyString;
     }
 }

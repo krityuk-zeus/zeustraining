@@ -99,6 +99,11 @@ export default class Grid {
 
 
 
+        this.isColResizing = null; // Initially no column is being resized
+        this.isRowResizing = null; // Initially no column is being resized
+
+
+
 
 
         // THIS EVENT LISTENER WOULD NOT BE SHIFTED INTO TOUCHHANDLER
@@ -147,8 +152,14 @@ export default class Grid {
         };
 
 
-        const virtualWidth = totalCols * 100; // CELLWidth and cellHeight are 100 and 0 resp
-        const virtualHeight = totalRows * 25;
+        /**
+         * @type {number} virtualWidth - The virtual width of the spacer, calculated based on the total number of columns.
+         * @type {number} virtualHeight - The virtual height of the spacer, calculated based on the total number of rows.
+         * When the grid is initialized, it creates a spacer element to enable scrolling within the container.
+         * When row-resize or col-resize happens, we would be updating the the virtualWidth and virtualHeight accordingly.
+         */
+        let virtualWidth = totalCols * 100; // CELLWidth and cellHeight are 100 and 0 resp
+        let virtualHeight = totalRows * 25;
 
         // Dummy spacer 
         // Its size is very-very big and is injected into the container
@@ -488,29 +499,29 @@ export default class Grid {
             const colWidth = this.columns[j].width;
 
             // 1. Check if header selection is active for this column
-            let isHeaderSelected = false;
+            let isColumnSelection = false;
             if (this.selection.type === "col-selection" && this.headerSelectStartCol !== undefined && this.headerSelectEndCol !== undefined) {
                 const minCol = Math.min(this.headerSelectStartCol, this.headerSelectEndCol);
                 const maxCol = Math.max(this.headerSelectStartCol, this.headerSelectEndCol);
-                if (j >= minCol && j <= maxCol) isHeaderSelected = true;
+                if (j >= minCol && j <= maxCol) isColumnSelection = true;
             }
 
             // 2. Check if cell selection is active for this column
-            let isColSelected = false;
+            let isCellColSelection = false;
             if (this.selection && this.selection.anchor && this.selection.focus) {
                 const minCol = Math.min(this.selection.anchor.col, this.selection.focus.col);
                 const maxCol = Math.max(this.selection.anchor.col, this.selection.focus.col);
                 if (j >= minCol && j <= maxCol)
-                    isColSelected = true;
+                    isCellColSelection = true;
             }
 
             // 3. Paint header cell
-            if (isHeaderSelected) {
+            if (isColumnSelection) {
                 this.headerCtx.fillStyle = '#107C41'; // dark green
                 this.headerCtx.fillRect(x, 0, colWidth, 25);
                 this.headerCtx.fillStyle = '#fff'; // white text
                 this.headerCtx.fillText(colLabel, x + colWidth / 2, 12.5);
-            } else if (isColSelected) {
+            } else if (isCellColSelection) {
                 this.headerCtx.fillStyle = '#CAEAD8'; // light green
                 this.headerCtx.fillRect(x, 0, colWidth, 25);
                 this.headerCtx.fillStyle = '#222';
@@ -528,7 +539,7 @@ export default class Grid {
             this.headerCtx.strokeRect(x + 0.5, 0.5, colWidth, 25);
 
             // Bottom Dark-Green border for selected columns
-            if (isHeaderSelected || isColSelected) {
+            if (isColumnSelection || isCellColSelection) {
                 this.headerCtx.beginPath();
                 this.headerCtx.moveTo(x - 2, 23.5);
                 this.headerCtx.lineTo(x + 2 + colWidth, 23.5);
@@ -587,27 +598,27 @@ export default class Grid {
 
             // Highlight if this row is in the selection is below
             // 1. Check if side selection is active for this row
-            let isSideSelected = false;
+            let isRowSelection = false;
             if (this.selection.type === "row-selection" && this.sideSelectStartRow !== undefined && this.sideSelectEndRow !== undefined) {
                 const minRow = Math.min(this.sideSelectStartRow, this.sideSelectEndRow);
                 const maxRow = Math.max(this.sideSelectStartRow, this.sideSelectEndRow);
-                if (i >= minRow && i <= maxRow) isSideSelected = true;
+                if (i >= minRow && i <= maxRow) isRowSelection = true;
             }
             // 2. Check if cell selection is active for this row
-            let isRowSelected = false;
+            let isCellRowSelection = false;
             if (this.selection && this.selection.anchor && this.selection.focus) {
                 const minRow = Math.min(this.selection.anchor.row, this.selection.focus.row);
                 const maxRow = Math.max(this.selection.anchor.row, this.selection.focus.row);
-                if (i >= minRow && i <= maxRow) isRowSelected = true;
+                if (i >= minRow && i <= maxRow) isCellRowSelection = true;
             }
 
             // 3. Paint side cell
-            if (isSideSelected) {
+            if (isRowSelection) {
                 this.sideCtx.fillStyle = '#107C41'; // dark green
                 this.sideCtx.fillRect(0, y, 50, rowHeight);
                 this.sideCtx.fillStyle = '#fff'; // white text
                 this.sideCtx.fillText(rowLabel, 25, y + rowHeight / 2);
-            } else if (isRowSelected) {
+            } else if (isCellRowSelection) {
                 this.sideCtx.fillStyle = '#CAEAD8'; // light green
                 this.sideCtx.fillRect(0, y, 50, rowHeight);
                 this.sideCtx.fillStyle = '#222';
@@ -630,7 +641,7 @@ export default class Grid {
             // Right dark green border for selected rows
             // If the row is selected in the side header or in the cell selection
             // then draw a dark green line on the right side of the side header cell
-            if (isSideSelected || isRowSelected) {
+            if (isRowSelection || isCellRowSelection) {
                 this.sideCtx.beginPath();
                 this.sideCtx.moveTo(48.5, y - 2);
                 this.sideCtx.lineTo(48.5, y + rowHeight + 2); // +2 px extra size of dark green line
@@ -792,8 +803,11 @@ export default class Grid {
      * This function checks if the pointer is near the, left or right edge, of any column, in the header canvas.
      * If it is, it changes the cursor to 'col-resize'.
      * @returns 
+     * handleHeaderpointermove wont run if isColResizing is on
      */
     handleHeaderpointermove(e) {
+        if (this.isColResizing) return; // Don't change cursor if resizing is on
+        if (this.isRowResizing) return; // Don't change cursor if resizing is on
         const rect = this.headerCanvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         let left = this.sumX - this.scrollX;
@@ -815,6 +829,8 @@ export default class Grid {
      * If it is, it changes the cursor to 'row-resize'.
      */
     handleSidepointermove(e) {
+        if (this.isColResizing) return; // Don't change cursor if resizing is on
+        if (this.isRowResizing) return; // Don't change cursor if resizing is on
         const rect = this.sideCanvas.getBoundingClientRect();
         const y = e.clientY - rect.top;
         let top = this.sumY - this.scrollY;

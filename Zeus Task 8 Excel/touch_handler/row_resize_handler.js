@@ -70,16 +70,17 @@ export default class RowResizeHandler {
      * @param {PointerEvent} e - The pointer down event.
      */
     onPointerDown(e) {
+        this.grid.isRowResizing = true; // Set resizing state
+        this.setResizeCursor(); // Set cursor to resizing state
         this.startY = e.clientY;
         this.startHeight = this.grid.rows[this.resizingRow].height;
         e.preventDefault();
-        this.grid.sideCanvas.style.cursor = "ns-resize"; // this line resets it to like in style.css
     }
 
     /**
      * Handles pointer movement during row resizing.
      * @param {PointerEvent} e - The pointer move event.
-     */
+    */
     onPointerMove(e) {
         if (this.resizingRow == null) return;
         const dy = e.clientY - this.startY;
@@ -93,9 +94,24 @@ export default class RowResizeHandler {
     */
     onPointerUp() {
         if (this.resizingRow == null) return;
+        this.resetResizeCursor(); // Reset cursor to default
+        this.grid.isRowResizing = null; // Set resizing state
         this.resizingRow = null;
         this.startY = null;
         this.startHeight = null;
-        this.grid.sideCanvas.style.cursor = AppString.emptyString; // this line resets it to like in style.css
+        
+    }
+
+    setResizeCursor() {
+        document.body.style.cursor = 'ew-resize';
+        this.grid.headerCanvas.style.cursor = 'ew-resize';
+        this.grid.canvas.style.cursor = 'ew-resize';
+        this.grid.sideCanvas.style.cursor = 'ew-resize';
+    }
+    resetResizeCursor() {
+        document.body.style.cursor = '';
+        this.grid.headerCanvas.style.cursor = AppString.emptyString;
+        this.grid.canvas.style.cursor = AppString.emptyString;
+        this.grid.sideCanvas.style.cursor = AppString.emptyString;
     }
 }
