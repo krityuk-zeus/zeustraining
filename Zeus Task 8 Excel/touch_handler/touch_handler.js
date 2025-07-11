@@ -45,8 +45,6 @@ export default class TouchHandler {
      */
     onPointerDown(e) {
         for (const handler of this.handlers) {
-                // this.grid.isHeaderSelecting = false; // Reset header selection state
-                // this.grid.isSideSelecting = false; // Reset sidebar selection state
             if (handler.hitTest(e)) {
                 this.curHandler = handler;
                 handler.onPointerDown(e);

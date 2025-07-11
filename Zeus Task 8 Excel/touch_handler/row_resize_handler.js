@@ -59,7 +59,8 @@ export default class RowResizeHandler {
                 return true;
             }
             top += row.height;
-            // if (top - this.grid.scrollY > this.grid.sideCanvas.height) break;
+            console.log("This is funciton htiTest of RowResizeHandler");
+            console.log("top: " + top + " scrollY: " + this.grid.scrollY + " height: " + this.grid.sideCanvas.height);
         }
         return false;
     }
@@ -72,6 +73,7 @@ export default class RowResizeHandler {
         this.startY = e.clientY;
         this.startHeight = this.grid.rows[this.resizingRow].height;
         e.preventDefault();
+        this.grid.sideCanvas.style.cursor = "ns-resize"; // this line resets it to like in style.css
     }
 
     /**
@@ -79,23 +81,21 @@ export default class RowResizeHandler {
      * @param {PointerEvent} e - The pointer move event.
      */
     onPointerMove(e) {
-        if (this.resizingRow !== null) {
-            const dy = e.clientY - this.startY;
-            let newHeight = Math.max(15, this.startHeight + dy); // Minimum height 15px
-            this.grid.rows[this.resizingRow].height = newHeight;
-            this.grid.resizeCanvas();
-        }
+        if (this.resizingRow == null) return;
+        const dy = e.clientY - this.startY;
+        let newHeight = Math.max(15, this.startHeight + dy); // Minimum height 15px
+        this.grid.rows[this.resizingRow].height = newHeight;
+        this.grid.resizeCanvas();
     }
 
     /**
      * Handles the end of a row resize operation.
-     */
+    */
     onPointerUp() {
-        if (this.resizingRow !== null) {
-            this.resizingRow = null;
-            this.startY = null;
-            this.startHeight = null;
-            this.grid.sideCanvas.style.cursor = AppString.emptyString; // this line resets it to like in style.css
-        }
+        if (this.resizingRow == null) return;
+        this.resizingRow = null;
+        this.startY = null;
+        this.startHeight = null;
+        this.grid.sideCanvas.style.cursor = AppString.emptyString; // this line resets it to like in style.css
     }
 }

@@ -43,6 +43,7 @@ export default class ColResizeHandler {
         if (e.target !== this.grid.headerCanvas) return false;
         const rect = this.grid.headerCanvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
+        // left is the left edge of the starting column.
         let left = this.grid.sumX - this.grid.scrollX;
         for (let j = this.grid.startCol; j < this.grid.endCol; j++) {
             const col = this.grid.columns[j];
@@ -57,7 +58,6 @@ export default class ColResizeHandler {
                 return true;
             }
             left += col.width;
-            // if (left - this.grid.scrollX > this.grid.headerCanvas.width) break;
         }
         return false;
     }
@@ -67,7 +67,8 @@ export default class ColResizeHandler {
      * @param {PointerEvent} e - The pointer down event.
      */
     onPointerDown(e) {
-        // this.grid.headerCanvas.style.cursor = 'col-resize'; // Change cursor to indicate resizing
+        // document.body.style.cursor = 'col-resize'; // Change cursor to indicate resizing
+        this.grid.headerCanvas.style.cursor = 'ew-resize';
         this.startX = e.clientX;
         this.startWidth = this.grid.columns[this.resizingCol].width;
         e.preventDefault();
@@ -78,24 +79,21 @@ export default class ColResizeHandler {
      * @param {PointerEvent} e - The pointer move event.
      */
     onPointerMove(e) {
-        document.body.style.cursor = 'col-resize'; // Change cursor to indicate resizing
-        if (this.resizingCol !== null) {
-            const dx = e.clientX - this.startX;
-            let newWidth = Math.max(30, this.startWidth + dx); // Minimum width 30px
-            this.grid.columns[this.resizingCol].width = newWidth;
-            this.grid.resizeCanvas();
-        }
+        if (this.resizingCol === null) return;
+        const dx = e.clientX - this.startX;
+        let newWidth = Math.max(30, this.startWidth + dx); // Minimum width 30px
+        this.grid.columns[this.resizingCol].width = newWidth;
+        this.grid.resizeCanvas();
     }
-
+    
     /**
      * Handles the end of a column resize operation.
-     */
-    onPointerUp() {
-        if (this.resizingCol !== null) {
-            this.resizingCol = null;
-            this.startX = null;
-            this.startWidth = null;
-            // this.grid.headerCanvas.style.cursor = AppString.emptyString;
-        }
+    */
+   onPointerUp() {
+        if (this.resizingCol === null) return;
+        this.resizingCol = null;
+        this.startX = null;
+        this.startWidth = null;
+        this.grid.headerCanvas.style.cursor = AppString.emptyString;
     }
 }
