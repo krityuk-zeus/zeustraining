@@ -67,7 +67,7 @@ export default class ColSelectionHandler {
      */
     onPointerDown(e) {
         this.grid.selection.type = 'col-selection'; // Set selection type to column-selection
-        this.grid.input.style.display = 'none'; // Hide input to prevent focus issues
+        this.grid.cellEditor.input.style.display = 'none'; // Hide input to prevent focus issues
         const rect = this.grid.headerCanvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const scrollX = this.grid.container.scrollLeft;

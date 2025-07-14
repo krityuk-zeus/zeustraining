@@ -2,8 +2,11 @@ import Cell from "../components/cell.js";
 import Row from "../components/row.js";
 import Column from "../components/column.js";
 
+import CellEditor from '../components/cell_editor.js';
+
 import Selection from "./Selection.js";
 import AppString from '../AppString/appstring.js';
+
 
 import TouchHandler from '../touch_handler/touch_handler.js';
 import CellSelectionHandler from "../touch_handler/cell_selection_handler.js";
@@ -72,7 +75,7 @@ export default class Grid {
          * @type {Selection} selection - The selection object for managing cell selections.
          * @property {boolean} isSelecting - Indicates if the user is currently selecting cells.
          */
-        this.selection = new Selection();
+        this.selection = new Selection(this);
         this.isSelecting = false;
 
         /**
@@ -207,45 +210,13 @@ export default class Grid {
 
         // ***********************************************************************************************************************************************
         // Edit any Cell in Excel UI
-        /**
-         * @type {HTMLInputElement} input - An input element for editing cell values.
-         * 
-         */
-        this.input = document.createElement('input');
-        // this.input.id = 'cell-editor';
-        this.container.appendChild(this.input);
-        this.input.className = 'cell-editor';
 
-
+        this.cellEditor = new CellEditor(this);
         /**
          * * Adds event listeners to the canvas and input elements for handling cell editing.
          */
         this.canvas.addEventListener('dblclick', (e) => this.handleCellEdit(e)); // adds input tag
-        // this.canvas.addEventListener('dblclick', (e) => this.handleCellEdit(e, true));
-
-
-        /**
-         * * @event blur - An event that triggers when the input loses focus, saving the edited value.
-         *  blur event runs on any tag when focus is loosed on that tag, ssaving the edited value on blur
-         */
-        this.input.addEventListener('blur', () => this.saveEdit());
-
-        /**
-         * * @event keydown - An event that triggers when a key is pressed while the input is focused.
-         * * It listens for the 'Enter' key to save the edit and the 'Escape' key to cancel the edit.
-         */
-        this.input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') this.saveEdit();
-            if (e.key === 'Escape') this.cancelEdit();
-            //*********************************************  ADD KEY-EVENTS ***************************************************************** */
-        });
-
-        // Hide input and save edit when scrolling (like Excel)
-        this.container.addEventListener('scroll', () => {
-            if (this.input.style.display === 'block') {
-                this.saveEdit();
-            }
-        });
+        this.container.addEventListener('keydown', this.onKeyDown.bind(this));
 
     }
 
@@ -382,16 +353,23 @@ export default class Grid {
      */
     renderCells() {
         // Draw Cells
-        this.ctx.clearRect(0.5, 0.5, this.canvas.width, this.canvas.height); // sbse pehle pura visible page part mita diya
+        this.ctx.clearRect(0.5, 0.5, this.canvas.width, this.canvas.height);
         this.ctx.font = "13px Arial";
 
         let y = this.sumY - this.scrollY;
         for (let i = this.startRow; i < this.endRow; i++) {
             let x = this.sumX - this.scrollX;
+            let drawHeight = this.rows[i].height;
+            // Clip last visible row if needed
+            if (i === this.endRow - 1) {
+                let maxVisibleY = this.canvas.height / (window.devicePixelRatio || 1);
+                let remainingHeight = maxVisibleY - (y - (this.sumY - this.scrollY));
+                drawHeight = Math.max(0, Math.min(drawHeight, remainingHeight));
+            }
             for (let j = this.startCol; j < this.endCol; j++) {
                 const colKey = AppString.Col + j;
                 if (!this.hashMap[i]) this.hashMap[i] = {};
-                if (this.hashMap[i][colKey] === undefined) { // Only initialize if not already set
+                if (this.hashMap[i][colKey] === undefined) {
                     if (i > 0 && this.data[i - 1] && Object.values(this.data[i - 1])[j] !== undefined) {
                         this.hashMap[i][colKey] = Object.values(this.data[i - 1])[j];
                     } else {
@@ -408,26 +386,31 @@ export default class Grid {
                     cellData = this.hashMap[i][colKey];
                 }
 
-                // --- Selecting multiple cells feature --- (below 3 lines are its part) // 
+                // Clip last visible column if needed
+                let drawWidth = this.columns[j].width;
+                if (j === this.endCol - 1) {
+                    let maxVisibleX = this.canvas.width / (window.devicePixelRatio || 1);
+                    let remainingWidth = maxVisibleX - (x - (this.sumX - this.scrollX));
+                    drawWidth = Math.max(0, Math.min(drawWidth, remainingWidth));
+                }
+
+                // --- Selecting multiple cells feature ---
                 if (this.selection && this.selection.isSelected(i, j)) {
-                    // Only skip fill if this is the anchor cell
-                    if (!(i === this.selection.anchor.row && j === this.selection.anchor.col)) { // 1 cell is not colored
+                    if (!(i === this.selection.anchor.row && j === this.selection.anchor.col)) {
                         this.ctx.fillStyle = "#E7F1EC";
-                        this.ctx.fillRect(x, y, this.columns[j].width, this.rows[i].height);
+                        this.ctx.fillRect(x, y, drawWidth, drawHeight);
                     }
                 }
 
                 const cell = new Cell(this.rows[i], this.columns[j]);
-                cell.drawCell(this.ctx, x, y, this.columns[j].width, this.rows[i].height, cellData);
-                // x,y = top-left point of cell taki cell draw ho paye
+                cell.drawCell(this.ctx, x, y, drawWidth, drawHeight, cellData);
 
                 x += this.columns[j].width;
             }
             y += this.rows[i].height;
         }
 
-        //
-        // --- Selecting multiple cells feature --- //
+        // --- Selecting multiple cells feature ---
         // Draw green border around selection (like Excel)
         if (this.selection && this.selection.anchor && this.selection.focus) {
             const minRow = Math.min(this.selection.anchor.row, this.selection.focus.row);
@@ -436,16 +419,12 @@ export default class Grid {
             const maxCol = Math.max(this.selection.anchor.col, this.selection.focus.col);
 
             // Clamp selection to visible viewport
-            // Clamping reqd because canvas is fixed and does not scroll without clamping,
-            // the green border of selected canvas cell were not going outside the screen when scrolled, they remain like fixed at screen
             const visibleMinRow = Math.max(minRow, this.startRow);
             const visibleMaxRow = Math.min(maxRow, this.endRow - 1);
             const visibleMinCol = Math.max(minCol, this.startCol);
             const visibleMaxCol = Math.min(maxCol, this.endCol - 1);
 
-            // Only draw if selection is visible in current viewport
             if (visibleMinRow < this.endRow && visibleMaxRow >= this.startRow && visibleMinCol < this.endCol && visibleMaxCol >= this.startCol) {
-                // Calculate top-left and bottom-right in canvas coordinates
                 let borderX = this.sumX - this.scrollX;
                 for (let j = this.startCol; j < visibleMinCol; j++)
                     borderX += this.columns[j].width;
@@ -462,11 +441,11 @@ export default class Grid {
                 this.ctx.save();
                 this.ctx.strokeStyle = "#107C41"; // Excel green
                 this.ctx.lineWidth = 2;
-                this.ctx.strokeRect(borderX - 1, borderY - 1, borderW + 2, borderH + 2); // -1, +2 kiya to make it present at out-edge of cell insted of in-edge of cell
+                this.ctx.strokeRect(borderX - 1, borderY - 1, borderW + 2, borderH + 2);
                 // Draw the one small green square at the bottom-right of the green border of selected cells grp
-                const handleSize = 8; // size of the square in px
+                const handleSize = 8;
                 this.ctx.fillStyle = "#107C41";
-                this.ctx.fillRect(borderX + borderW - 3, borderY + borderH - 3, handleSize, handleSize); // 8*8 small green square
+                this.ctx.fillRect(borderX + borderW - 3, borderY + borderH - 3, handleSize, handleSize);
                 this.ctx.restore();
             }
         }
@@ -664,70 +643,20 @@ export default class Grid {
      * @returns 
      */
     handleCellEdit(e) {
-        this.saveEdit();
-
-        // Use selection anchor for cell indices
         const colIdx = this.selection.anchor.col;
         const rowIdx = this.selection.anchor.row;
-
         if (colIdx == null || rowIdx == null) return;
-
-        // Calculate cell's top-left in canvas
-        let sumX = this.sumX - this.scrollX;
-        for (let j = this.startCol; j < colIdx; j++) {
-            sumX += this.columns[j].width;
-        }
-        let sumY = this.sumY - this.scrollY;
-        for (let i = this.startRow; i < rowIdx; i++) {
-            sumY += this.rows[i].height;
-        }
-
-        const cellX = sumX;
-        const cellY = sumY;
-
-        // Position input
-        const headerHeight = 25;
-        const sideWidth = 50;
-        const exelHeaderHeight = 50;
-        this.input.style.left = (cellX + sideWidth) + 'px';
-        this.input.style.top = (cellY + headerHeight + exelHeaderHeight + 1) + 'px';
-        this.input.style.width = this.columns[colIdx].width - 3 + 'px';
-        this.input.style.height = this.rows[rowIdx].height - 1 + 'px';
-        this.input.style.display = 'block';
-
-        // Set value
-        const keys = Object.keys(this.data[0] || {});
-        let key = keys[colIdx];
-        const colKey = AppString.Col + colIdx;
-        let value = AppString.emptyString;
-        if (this.hashMap[rowIdx] && this.hashMap[rowIdx][colKey] !== undefined) {
-            value = this.hashMap[rowIdx][colKey];
-        }
-        this.input.value = value;
-        this.input.focus();
-
-        // Store editing cell
-        this.editingCell = { rowIdx, colIdx, key };
-        this.scheduleRender();
+        this.cellEditor.showEditor(rowIdx, colIdx);
     }
 
-    saveEdit() {
-        if (!this.editingCell) return;
-        const { rowIdx, colIdx } = this.editingCell;
-        const colKey = AppString.Col + colIdx;
-        if (!this.hashMap[rowIdx]) this.hashMap[rowIdx] = {};
-        this.hashMap[rowIdx][colKey] = this.input.value;
-        this.input.style.display = 'none';
-        this.editingCell = null;
-        this.scheduleRender();
+    onKeyDown(e) {
+        console.log("Key down event of grid.js called");
+        if (!this.selection.anchor || !this.selection.focus) return;
+        this.selection.onKeyDown(e);
+        this.handleCellEdit(e);
     }
 
-    cancelEdit() {
-        this.input.style.display = 'none';
-        this.editingCell = null;
-        //when cell ko edit kiya to render the header and sidebar as well as we need to remove the highlighted associated header cell and sidebar cell
-        this.scheduleRender();
-    }
+
 
     /**
      * 

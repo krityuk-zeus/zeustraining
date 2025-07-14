@@ -44,7 +44,7 @@ export default class RowSelectionHandler {
      */
     onPointerDown(e) {
         this.grid.selection.type = 'row-selection'; // Set selection type to row-selection
-        this.grid.input.style.display = 'none'; // Hide input to prevent focus issues
+        this.grid.cellEditor.input.style.display = 'none'; // Hide input to prevent focus issues
         const rect = this.grid.sideCanvas.getBoundingClientRect();
         const y = e.clientY - rect.top;
         const scrollY = this.grid.container.scrollTop;
