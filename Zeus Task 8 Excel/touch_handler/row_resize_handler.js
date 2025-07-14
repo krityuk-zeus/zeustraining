@@ -103,10 +103,10 @@ export default class RowResizeHandler {
     }
 
     setResizeCursor() {
-        document.body.style.cursor = 'ew-resize';
-        this.grid.headerCanvas.style.cursor = 'ew-resize';
-        this.grid.canvas.style.cursor = 'ew-resize';
-        this.grid.sideCanvas.style.cursor = 'ew-resize';
+        document.body.style.cursor = 'ns-resize';
+        this.grid.headerCanvas.style.cursor = 'ns-resize';
+        this.grid.canvas.style.cursor = 'ns-resize';
+        this.grid.sideCanvas.style.cursor = 'ns-resize';
     }
     resetResizeCursor() {
         document.body.style.cursor = AppString.EmptyString;

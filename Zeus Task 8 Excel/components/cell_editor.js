@@ -9,10 +9,6 @@ export default class CellEditor {
         this.grid.container.appendChild(this.input);
 
         this.input.addEventListener('blur', () => this.saveEdit());
-        this.input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === 'Tab') this.saveEdit();
-            if (e.key === 'Escape') this.cancelEdit();
-        });
 
         //This line makes the container focusable by JavaScript or keyboard.
         this.grid.container.tabIndex = 0;
@@ -22,9 +18,14 @@ export default class CellEditor {
         this.editingCell = null;
     }
 
-    showEditor(rowIdx, colIdx) {
+    showEditor() {
         // Calculate cell position
+        
+        const colIdx = this.grid.selection.anchor.col;
+        const rowIdx = this.grid.selection.anchor.row;
+        if (colIdx == null || rowIdx == null) return;
         console.log("showEditor called with rowIdx:", rowIdx, "colIdx:", colIdx);
+
         let sumX = this.grid.sumX - this.grid.scrollX;
         for (let j = this.grid.startCol; j < colIdx; j++) sumX += this.grid.columns[j].width;
         let sumY = this.grid.sumY - this.grid.scrollY;
@@ -81,7 +82,6 @@ export default class CellEditor {
 
         this.input.style.display = 'none';
         this.editingCell = null;
-        this.grid.scheduleRender();
     }
 
     cancelEdit() {

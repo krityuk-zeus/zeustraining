@@ -215,7 +215,7 @@ export default class Grid {
         /**
          * * Adds event listeners to the canvas and input elements for handling cell editing.
          */
-        this.canvas.addEventListener('dblclick', (e) => this.handleCellEdit(e)); // adds input tag
+        this.canvas.addEventListener('dblclick', (e) => this.cellEditor.showEditor(e)); // adds input tag
         this.container.addEventListener('keydown', this.onKeyDown.bind(this));
 
     }
@@ -642,18 +642,13 @@ export default class Grid {
      * @param {*} e 
      * @returns 
      */
-    handleCellEdit(e) {
-        const colIdx = this.selection.anchor.col;
-        const rowIdx = this.selection.anchor.row;
-        if (colIdx == null || rowIdx == null) return;
-        this.cellEditor.showEditor(rowIdx, colIdx);
-    }
 
     onKeyDown(e) {
         console.log("Key down event of grid.js called");
         if (!this.selection.anchor || !this.selection.focus) return;
         this.selection.onKeyDown(e);
-        this.handleCellEdit(e);
+        if (e.key !== 'Escape')
+            this.cellEditor.showEditor();
     }
 
 
@@ -729,7 +724,7 @@ export default class Grid {
         for (let j = this.startCol; j < this.endCol; j++) {
             const col = this.columns[j];
             if (j > 0 && Math.abs(x - left) < 5 || Math.abs(x - (left + col.width)) < 5) {
-                this.headerCanvas.style.cursor = 'col-resize';
+                this.headerCanvas.style.cursor = 'ew-resize';
                 return;
             }
             left += col.width;
@@ -756,7 +751,7 @@ export default class Grid {
                 (i > 0 && Math.abs(y - top) < 5) || // top edge (not for first row)
                 (Math.abs(y - (top + row.height)) < 5) // bottom edge
             ) {
-                this.sideCanvas.style.cursor = 'row-resize';
+                this.sideCanvas.style.cursor = 'ns-resize';
                 return;
             }
             top += row.height;

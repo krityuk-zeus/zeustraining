@@ -75,7 +75,7 @@ export default class Selection {
             // Anchor stays, focus moves, so selection expands/contracts
         } else {
             // Arrow keys, Enter, Tab: move to single cell, clear previous selection
-            // this.grid.cellEditor.saveEdit();
+            this.grid.cellEditor.saveEdit();
             switch (e.key) {
                 case 'ArrowUp':
                     if (row > 0) row--;
