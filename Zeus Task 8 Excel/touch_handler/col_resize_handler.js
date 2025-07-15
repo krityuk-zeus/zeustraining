@@ -1,4 +1,5 @@
 import AppString from "../AppString/appstring.js";
+import ColResizeCommand from "../Command_Pattern/col_resize_cmd.js";
 import Grid from "../Core/grid.js";
 
 /**
@@ -91,6 +92,13 @@ export default class ColResizeHandler {
     */
     onPointerUp() {
         if (this.resizingCol === null) return;
+        
+        // Below 4 line are for cmd pattern In ColResizeHandler.onPointerUp()
+        const oldWidth = this.startWidth;
+        const newWidth = this.grid.columns[this.resizingCol].width;
+        const cmd = new ColResizeCommand (this.grid, this.resizingCol, oldWidth, newWidth);
+        this.grid.executeCommand(cmd);
+
         this.resetResizeCursor();
         this.grid.isColResizing = null;
         this.resizingCol = null;

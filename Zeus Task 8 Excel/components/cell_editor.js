@@ -1,4 +1,6 @@
 import AppString from '../AppString/appstring.js';
+import CellEditCommand from '../Command_Pattern/edit_cell_cmd.js';
+
 
 export default class CellEditor {
     constructor(grid) {
@@ -20,7 +22,7 @@ export default class CellEditor {
 
     showEditor() {
         // Calculate cell position
-        
+
         const colIdx = this.grid.selection.anchor.col;
         const rowIdx = this.grid.selection.anchor.row;
         if (colIdx == null || rowIdx == null) return;
@@ -58,31 +60,35 @@ export default class CellEditor {
     }
 
     saveEdit() {
-        if (!this.editingCell) return;
-        const { rowIdx, colIdx } = this.editingCell;
-        const colKey = AppString.Col + colIdx;
+    if (!this.editingCell) return;
+    const { rowIdx, colIdx } = this.editingCell;
+    const colKey = AppString.Col + colIdx;
+    const newValue = this.input.value; // <-- define newValue here
 
-        if (rowIdx === 0) {
-            // For header row, update the key in data[0]
-            const keys = Object.keys(this.grid.data[0] || {});
-            const oldKey = keys[colIdx];
-            const newKey = this.input.value;
-            if (oldKey && newKey && oldKey !== newKey) {
-                for (let i = 0; i < this.grid.data.length; i++) {
-                    if (this.grid.data[i][oldKey] !== undefined) {
-                        this.grid.data[i][newKey] = this.grid.data[i][oldKey];
-                        delete this.grid.data[i][oldKey];
-                    }
+    if (rowIdx === 0) {
+        // For header row, update the key in data[0]
+        const keys = Object.keys(this.grid.data[0] || {});
+        const oldKey = keys[colIdx];
+        if (oldKey && newValue && oldKey !== newValue) {
+            for (let i = 0; i < this.grid.data.length; i++) {
+                if (this.grid.data[i][oldKey] !== undefined) {
+                    this.grid.data[i][newValue] = this.grid.data[i][oldKey];
+                    delete this.grid.data[i][oldKey];
                 }
             }
-        } else {
-            if (!this.grid.hashMap[rowIdx]) this.grid.hashMap[rowIdx] = {};
-            this.grid.hashMap[rowIdx][colKey] = this.input.value;
         }
+    } else {
+        if (!this.grid.hashMap[rowIdx]) this.grid.hashMap[rowIdx] = {};
+        const oldValue = this.grid.hashMap[rowIdx][colKey] || AppString.emptyString;
 
-        this.input.style.display = 'none';
-        this.editingCell = null;
+        // Create a command to save the edit
+        const cmd = new CellEditCommand(this.grid, rowIdx, colIdx, oldValue, newValue);
+        this.grid.executeCommand(cmd);
     }
+
+    this.input.style.display = 'none';
+    this.editingCell = null;
+}
 
     cancelEdit() {
         this.input.style.display = 'none';

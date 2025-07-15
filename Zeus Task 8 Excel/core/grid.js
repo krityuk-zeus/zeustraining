@@ -218,6 +218,35 @@ export default class Grid {
         this.canvas.addEventListener('dblclick', (e) => this.cellEditor.showEditor(e)); // adds input tag
         this.container.addEventListener('keydown', this.onKeyDown.bind(this));
 
+
+        /**
+         * BELOW CODE IS RELATED TO COMMAND PATTERN
+         */
+        this.undoStack = [];
+        this.redoStack = [];
+
+        this.executeCommand = (cmd) => {
+            cmd.execute();
+            this.undoStack.push(cmd);
+            this.redoStack = [];
+        };
+
+        this.undo = () => {
+            if (this.undoStack.length === 0) return;
+            const cmd = this.undoStack.pop();
+            cmd.undo();
+            this.redoStack.push(cmd);
+            this.scheduleRender();
+        };
+
+        this.redo = () => {
+            if (this.redoStack.length === 0) return;
+            const cmd = this.redoStack.pop();
+            cmd.execute();
+            this.undoStack.push(cmd);
+            this.scheduleRender();
+        };
+
     }
 
     /**
@@ -353,7 +382,7 @@ export default class Grid {
      */
     renderCells() {
         // Draw Cells
-        this.ctx.clearRect(0.5, 0.5, this.canvas.width, this.canvas.height);
+        // this.ctx.clearRect(0.5, 0.5, this.canvas.width, this.canvas.height);
         this.ctx.font = "13px Arial";
 
         let y = this.sumY - this.scrollY;
@@ -757,6 +786,19 @@ export default class Grid {
             top += row.height;
         }
         this.sideCanvas.style.cursor = AppString.emptyString;
+    }
+
+
+    setCellValue(row, col, value, record = true) {
+        const colKey = AppString.Col + col;
+        if (!this.hashMap[row]) this.hashMap[row] = {};
+        const oldValue = this.hashMap[row][colKey];
+        this.hashMap[row][colKey] = value;
+        if (record) {
+            const cmd = new CellEditCommand(this, row, col, oldValue, value);
+            this.executeCommand(cmd);
+        }
+        this.scheduleRender();
     }
 
 

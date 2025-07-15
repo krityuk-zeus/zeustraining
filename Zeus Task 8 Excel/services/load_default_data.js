@@ -1,4 +1,6 @@
 import Grid from "../core/grid.js";
+import { setGrid } from '../core/grid_manager.js';
+
 
 
 /**
@@ -24,6 +26,10 @@ export default async function loadDefaultData() {
     const res = await fetch('json/data.json');
     const data = await res.json();
     grid = new Grid(container, data);
+
+    // Calling the setter of grid here so that header actions can access the grid instance.
+    setGrid(grid); // Set the grid reference for header actions
+    
   } catch (err) {
     console.warn('Failed to load default data. Using empty grid.', err.message);
     grid = new Grid(container, []); // fallback

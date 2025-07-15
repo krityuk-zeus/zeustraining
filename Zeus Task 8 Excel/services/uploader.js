@@ -1,4 +1,5 @@
 import Grid from "../core/grid.js";
+import { getGrid, setGrid } from '../core/grid_manager.js';
 
 
 /**
@@ -11,7 +12,7 @@ const container = document.getElementById('container');
  * Grid instance that will be created and managed.
  * It will be initialized with the default data or updated with user-uploaded data.
  */
-let grid = null;
+// let grid = null;
 
 /**
  * WhenEver upload button is clicked, it will call the handleUpload function,
@@ -40,10 +41,13 @@ export default async function handleUpload() {
        * To clear the previous data before rendering the new grid.
        *  If we wrote container.innerHTML = ''; here itself, then since grid has window.event listeners, and setTimeout inside it, so grid instance would not get cleared.
       */
-      if (grid)
-        grid.destroy(); // container.innerHTML = '';
 
-      grid = new Grid(container, json);
+      const oldGrid = getGrid();
+      if (oldGrid) oldGrid.destroy();
+      // container.innerHTML = '';
+
+      const newGrid = new Grid(container, json);
+      setGrid(newGrid);
     } catch (err) {
       alert(`Invalid JSON: ${err.message}`);
     }
