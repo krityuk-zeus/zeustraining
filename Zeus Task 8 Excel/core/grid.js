@@ -382,7 +382,7 @@ export default class Grid {
      */
     renderCells() {
         // Draw Cells
-        // this.ctx.clearRect(0.5, 0.5, this.canvas.width, this.canvas.height);
+        this.ctx.clearRect(0.5, 0.5, this.canvas.width, this.canvas.height);
         this.ctx.font = "13px Arial";
 
         let y = this.sumY - this.scrollY;

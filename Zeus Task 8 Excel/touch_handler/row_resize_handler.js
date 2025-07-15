@@ -1,6 +1,8 @@
 import AppString from "../AppString/appstring.js";
 import Grid from "../Core/grid.js";
 
+import RowResizeCommand from "../Command_Pattern/row_resize_cmd.js";
+
 /**
  * Handles row resizing when the user drags near the edge of a row in the side canvas.
  */
@@ -94,12 +96,18 @@ export default class RowResizeHandler {
     */
     onPointerUp() {
         if (this.resizingRow == null) return;
+
+        const oldHeight = this.startHeight;
+        const newHeight = this.grid.rows[this.resizingRow].height;
+        const cmd = new RowResizeCommand(this.grid, this.resizingRow, oldHeight, newHeight);
+        this.grid.executeCommand(cmd);
+
         this.resetResizeCursor(); // Reset cursor to default
         this.grid.isRowResizing = null; // Set resizing state
         this.resizingRow = null;
         this.startY = null;
         this.startHeight = null;
-        
+
     }
 
     setResizeCursor() {
