@@ -380,48 +380,45 @@ export default class Grid {
      * Renders the cells in the grid based on the current viewport.
      * Also painting the selected cells with a different background color.
      */
+    /**
+     * Renders the cells in the grid based on the current viewport.
+     * Also painting the selected cells with a different background color.
+     */
     renderCells() {
         // Draw Cells
-        this.ctx.clearRect(0.5, 0.5, this.canvas.width, this.canvas.height);
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.font = "13px Arial";
 
         let y = this.sumY - this.scrollY;
-        for (let i = this.startRow; i < this.endRow; i++) {
+
+        for (let i = this.startRow; i <= this.endRow; i++) {
+            if (i === this.totalRows) break; // Avoid out of bounds
             let x = this.sumX - this.scrollX;
             let drawHeight = this.rows[i].height;
-            // Clip last visible row if needed
-            if (i === this.endRow - 1) {
-                let maxVisibleY = this.canvas.height / (window.devicePixelRatio || 1);
-                let remainingHeight = maxVisibleY - (y - (this.sumY - this.scrollY));
-                drawHeight = Math.max(0, Math.min(drawHeight, remainingHeight));
-            }
-            for (let j = this.startCol; j < this.endCol; j++) {
+
+            for (let j = this.startCol; j <= this.endCol; j++) {
+                if (j === this.totalCols) break; // Avoid out of bounds
                 const colKey = AppString.Col + j;
                 if (!this.hashMap[i]) this.hashMap[i] = {};
-                if (this.hashMap[i][colKey] === undefined) {
+
+                // Cache header keys in hashMap for i === 0
+                if (i === 0) {
+                    if (this.hashMap[0][colKey] === undefined) {
+                        const keys = Object.keys(this.data[0] || {});
+                        this.hashMap[0][colKey] = keys[j] ? keys[j].toUpperCase() : AppString.emptyString;
+                    }
+                } else if (this.hashMap[i][colKey] === undefined) {
                     if (i > 0 && this.data[i - 1] && Object.values(this.data[i - 1])[j] !== undefined) {
                         this.hashMap[i][colKey] = Object.values(this.data[i - 1])[j];
                     } else {
                         this.hashMap[i][colKey] = AppString.emptyString;
                     }
                 }
-                let cellData = AppString.emptyString;
-                if (i === 0) {
-                    if (this.data[0]) {
-                        const keys = Object.keys(this.data[0]);
-                        cellData = keys[j] ? keys[j].toUpperCase() : AppString.emptyString;
-                    }
-                } else {
-                    cellData = this.hashMap[i][colKey];
-                }
 
-                // Clip last visible column if needed
+                // Get cell data
+                let cellData = this.hashMap[i][colKey];
+
                 let drawWidth = this.columns[j].width;
-                if (j === this.endCol - 1) {
-                    let maxVisibleX = this.canvas.width / (window.devicePixelRatio || 1);
-                    let remainingWidth = maxVisibleX - (x - (this.sumX - this.scrollX));
-                    drawWidth = Math.max(0, Math.min(drawWidth, remainingWidth));
-                }
 
                 // --- Selecting multiple cells feature ---
                 if (this.selection && this.selection.isSelected(i, j)) {
@@ -480,7 +477,6 @@ export default class Grid {
         }
     }
 
-
     /**
      * 
      * @param {number} startCol - The starting column index for rendering the header.
@@ -502,7 +498,8 @@ export default class Grid {
          * x is for drawRect function to draw the header cells, at the correct horizontal position
          */
         let x = this.sumX - this.scrollX;
-        for (let j = this.startCol; j < this.endCol; j++) {
+        for (let j = this.startCol; j <= this.endCol; j++) {
+            if (j === this.totalCols) break; // Avoid out of bounds
             const colLabel = this.colToLetter(j);
             const colWidth = this.columns[j].width;
 
@@ -600,7 +597,8 @@ export default class Grid {
          * y is for drawRect function to draw the side header cells, at the correct vertical position
          */
         let y = this.sumY - this.scrollY;
-        for (let i = this.startRow; i < this.endRow; i++) {
+        for (let i = this.startRow; i <= this.endRow; i++) {
+            if (i === this.totalRows) break; // Avoid out of bounds
             const rowLabel = (i + 1).toString();
             const rowHeight = this.rows[i].height;
 
